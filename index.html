@@ -159,6 +159,37 @@
     max-width: 1080px;
     width: 100%;
   }
+  /* 格子放大：2 欄 / 1 欄 */
+  .calendar-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .calendar-grid.cols-1 { grid-template-columns: 1fr; max-width: 760px; }
+  .calendar-grid.cols-2 .day-label, .calendar-grid.cols-1 .day-label { font-size: 12px; }
+  .calendar-grid.cols-2 .day-subnote, .calendar-grid.cols-1 .day-subnote { font-size: 11px; }
+  .calendar-grid.cols-2 .jp-line, .calendar-grid.cols-1 .jp-line { font-size: 10px; }
+
+  /* 縮小看全年（只在螢幕上，列印不受影響） */
+  @media screen {
+    .calendar-grid.compact { grid-template-columns: repeat(4, 1fr); max-width: 1400px; gap: 8px; }
+    .compact .month-card { border-radius: 14px; }
+    .compact .month-header { padding: 3px 8px; font-size: 13px; gap: 5px; }
+    .compact table { border-spacing: 1.5px; padding: 3px; }
+    .compact th { font-size: 10px; padding: 1px 0; }
+    .compact td { height: 26px; padding: 1px; border-radius: 5px; }
+    .compact .day-num { font-size: 11px; margin: 0; }
+    .compact .day-label { font-size: 7.5px; -webkit-line-clamp: 1; padding: 0 1px; border-radius: 3px; }
+    .compact .day-subnote, .compact .jp-line { display: none; }
+    .compact .jp-badge { width: 7px; height: 7px; font-size: 0; top: 1px; right: 1px; }
+    .compact .exam-badge { font-size: 6.5px; line-height: 9px; padding: 0 2px; top: 1px; left: 1px; }
+    .compact td.in-peak::before { border-top-width: 7px; border-right-width: 7px; }
+    .compact td.in-break::after { height: 2px; bottom: 1px; left: 2px; right: 2px; }
+    .compact td:not(.empty):hover { transform: scale(1.3); }
+  }
+  @media screen and (min-width: 1500px) {
+    .calendar-grid.compact { grid-template-columns: repeat(6, 1fr); max-width: 1800px; }
+  }
+  @media screen and (max-width: 600px) {
+    .calendar-grid.compact { grid-template-columns: repeat(2, 1fr); }
+  }
+
   .month-card {
     background: #fff;
     border-radius: 22px;
@@ -207,29 +238,33 @@
   td.today { border: 2px solid #5c4b51 !important; }
 
   .day-num { font-size: 14px; font-weight: bold; line-height: 1.1; margin-bottom: 2px; }
+  /* 名稱：最多 2 行，自動換行 */
   .day-label {
     font-size: 10.5px;
     font-weight: bold;
-    line-height: 1.15;
+    line-height: 1.2;
     padding: 1px 3px;
     border-radius: 4px;
-    display: inline-block;
-    max-width: 100%;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-all;
     background: rgba(92, 75, 81, 0.09);
     color: var(--text-main);
   }
   td.has-color .day-label { background: rgba(255, 255, 255, 0.24); color: #fff; }
+  /* 加註：最多 3 行，自動換行 */
   .day-subnote {
     font-size: 9.5px;
-    line-height: 1.1;
+    line-height: 1.2;
     margin-top: 1.5px;
     color: #7a686e;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-all;
   }
   td.has-color .day-subnote { color: rgba(255, 255, 255, 0.93); }
 
@@ -278,8 +313,11 @@
     box-shadow: 0 0 0 1px #e74c3c;
   }
   .jp-line {
-    display: inline-block;
-    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
     font-size: 8.5px;
     font-weight: bold;
     line-height: 1.2;
@@ -288,10 +326,8 @@
     border-radius: 4px;
     background: #fff0f0;
     color: #e74c3c;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
+  .legend .jp-line { display: inline-block; }
   .jp-line.ev { background: #f0eeff; color: #6c5ce7; }
   .exam-badge {
     position: absolute;
@@ -557,7 +593,7 @@
   }
   @media (max-width: 600px) {
     body { padding: 10px; }
-    .calendar-grid { grid-template-columns: 1fr; }
+    .calendar-grid, .calendar-grid.cols-2 { grid-template-columns: 1fr; }
     .header-banner { padding: 10px 18px; border-radius: 24px; }
     .header-banner h1 { font-size: 18px; letter-spacing: 1px; }
     .divider { display: none; }
@@ -577,7 +613,10 @@
     .header-banner { padding: 6px 20px; margin-bottom: 8px; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .header-banner h1 { font-size: 19px; }
     .header-banner p { display: none; }
-    .calendar-grid { gap: 8px; max-width: 100%; grid-template-columns: repeat(3, 1fr); }
+    .calendar-grid, .calendar-grid.cols-2, .calendar-grid.cols-1 { gap: 8px; max-width: 100% !important; grid-template-columns: repeat(3, 1fr) !important; }
+    .calendar-grid .day-label { font-size: 9px !important; }
+    .calendar-grid .day-subnote { font-size: 8px !important; -webkit-line-clamp: 2; }
+    .calendar-grid .jp-line { font-size: 7px !important; -webkit-line-clamp: 1; }
     .month-card { box-shadow: none; break-inside: avoid; border-radius: 14px; }
     .month-header { padding: 4px 10px; font-size: 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     table { border-spacing: 2px; padding: 4px; }
@@ -632,8 +671,8 @@
     <select id="barEndM" onchange="updateDayOptions('barEndM', 'barEndD', false)"></select>
     <select id="barEndD"></select>
 
-    <input type="text" id="barLabelInput" placeholder="🏷️ 名稱 (如: 北海道5日)" style="width:155px;" maxlength="10">
-    <input type="text" id="barSubInput" placeholder="💬 加註 (如: 剩3位)" style="width:150px;" maxlength="14">
+    <input type="text" id="barLabelInput" placeholder="🏷️ 名稱 (如: 北海道5日)" style="width:165px;" maxlength="16">
+    <input type="text" id="barSubInput" placeholder="💬 加註 (如: 剩3位、已成團)" style="width:190px;" maxlength="30">
 
     <select id="barColorSelect">
       <option value="event">⭐ 候選開團 (黃)</option>
@@ -681,6 +720,8 @@
   </div>
   <div class="divider"></div>
   <div class="action-group">
+    <button class="btn" id="colsBtn" onclick="cycleCols()">🔎 放大格子</button>
+    <button class="btn" id="compactBtn" onclick="toggleCompact()">🗓️ 縮小看全年</button>
     <button class="btn" onclick="undo()">↩️ 復原</button>
     <button class="btn" onclick="window.print()">🖨️ 列印 / 存 PDF</button>
     <button class="btn" onclick="resetCalendar()" style="color:#d63031;">🔄 恢復預設</button>
@@ -728,7 +769,7 @@
     </div>
 
     <label class="modal-label">🏷️ 第一行【名稱】：</label>
-    <input type="text" id="modalLabelInput" class="modal-input" placeholder="例如：北海道5日、報名截止..." maxlength="10">
+    <input type="text" id="modalLabelInput" class="modal-input" placeholder="例如：北海道5日、報名截止...（最多16字）" maxlength="16">
     <div class="quick-tags">
       <span style="font-size:11px;color:#999;line-height:22px;">快速代入：</span>
       <span class="tag-chip" onclick="setQuickLabel('候選團')">候選團</span>
@@ -740,7 +781,7 @@
     </div>
 
     <label class="modal-label">💬 第二行【加註】：</label>
-    <input type="text" id="modalSubInput" class="modal-input" placeholder="例如：剩3位、已成團..." maxlength="14">
+    <input type="text" id="modalSubInput" class="modal-input" placeholder="例如：剩3位、已成團、尾款10/31前...（最多30字）" maxlength="30">
 
     <label class="modal-label">🎨 底色：</label>
     <div class="modal-colors">
@@ -1162,7 +1203,43 @@ function stripSchoolCells(data) {
   return out;
 }
 
-function defaultLayers() { return { breaks: true, risk: true, school: true, jp: true }; }
+function defaultLayers() { return { breaks: true, risk: true, school: true, jp: true, cols: 3, compact: false }; }
+
+// 格子大小：3 欄（標準）→ 2 欄（放大）→ 1 欄（最大）；另外可「縮小看全年」
+function applyCols() {
+  const cols = state.layers.cols || 3;
+  const compact = !!state.layers.compact;
+  const grid = document.getElementById("calendar");
+  grid.classList.toggle("compact", compact);
+  grid.classList.toggle("cols-2", !compact && cols === 2);
+  grid.classList.toggle("cols-1", !compact && cols === 1);
+  const colsBtn = document.getElementById("colsBtn");
+  const compactBtn = document.getElementById("compactBtn");
+  colsBtn.textContent = compact || cols === 3 ? "🔎 放大格子" : cols === 2 ? "🔎 格子：放大（再按最大）" : "🔎 格子：最大（再按還原）";
+  colsBtn.classList.toggle("active", !compact && cols !== 3);
+  compactBtn.textContent = compact ? "🗓️ 恢復正常大小" : "🗓️ 縮小看全年";
+  compactBtn.classList.toggle("active", compact);
+}
+
+function cycleCols() {
+  const cols = state.layers.cols || 3;
+  if (state.layers.compact) {
+    state.layers.compact = false;
+    state.layers.cols = 2;
+  } else {
+    state.layers.cols = cols === 3 ? 2 : cols === 2 ? 1 : 3;
+  }
+  saveState();
+  applyCols();
+}
+
+function toggleCompact() {
+  state.layers.compact = !state.layers.compact;
+  if (state.layers.compact) state.layers.cols = 3;
+  saveState();
+  applyCols();
+  if (state.layers.compact) showToast("🗓️ 已縮小看全年，點格子一樣可以編輯，滑鼠移上去可看說明");
+}
 
 function loadState() {
   try {
@@ -1659,11 +1736,11 @@ function addExamRow(ex) {
   const row = document.createElement("div");
   row.className = "exam-row";
   row.innerHTML = `
-    <input type="text" class="ex-label" list="examLabelList" maxlength="10" placeholder="期中考">
+    <input type="text" class="ex-label" list="examLabelList" maxlength="16" placeholder="期中考">
     <input type="date" class="ex-start" min="${YEAR}-01-01" max="${YEAR}-12-31">
     <span class="exam-tilde" style="text-align:center;font-weight:bold;">～</span>
     <input type="date" class="ex-end" min="${YEAR}-01-01" max="${YEAR}-12-31">
-    <input type="text" class="ex-sub" maxlength="14" placeholder="考國數">
+    <input type="text" class="ex-sub" maxlength="30" placeholder="考國數">
     <button class="exam-del" title="刪除這列">✖</button>
   `;
   row.querySelector(".ex-label").value = ex.label || "";
@@ -1778,10 +1855,10 @@ function copyReportLink() {
 function sanitizeExams(list) {
   if (!Array.isArray(list)) return [];
   return list.map(ex => ({
-    label: String(ex.label || "考試").slice(0, 10),
+    label: String(ex.label || "考試").slice(0, 16),
     start: String(ex.start || ""),
     end: String(ex.end || ex.start || ""),
-    sub: String(ex.sub || "").slice(0, 14)
+    sub: String(ex.sub || "").slice(0, 30)
   })).filter(ex => parseDateInput(ex.start) && parseDateInput(ex.end));
 }
 
@@ -2010,7 +2087,7 @@ function checkRange() {
 function markTour(color, s, e) {
   const name = prompt(color === "trip" ? "團名（例如：北海道5日）" : "候選團名稱", color === "trip" ? "日本團" : "候選團");
   if (name === null) return;
-  const title = (name.trim() || (color === "trip" ? "日本團" : "候選團")).slice(0, 10);
+  const title = (name.trim() || (color === "trip" ? "日本團" : "候選團")).slice(0, 16);
   pushUndo();
   const days = getKeysInRange(s.m, s.d, e.m, e.d);
   days.forEach(({ m, d }, i) => {
@@ -2161,6 +2238,7 @@ window.addEventListener("hashchange", handleHash);
 loadState();
 refreshSchoolMap();
 syncLayerCheckboxes();
+applyCols();
 initSelectControls();
 initCalendarEvents();
 renderCalendar();
