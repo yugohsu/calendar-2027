@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🌸 116年 (2027年) 可愛互動行事曆 🌸</title>
-<meta name="description" content="中華民國116年（2027）可愛互動行事曆：國定假日、學校考試日期自訂、分享連結、列印 A4">
+<title>🌸 116年 (2027年) 開團行事曆 🌸</title>
+<meta name="description" content="中華民國116年（2027）開團行事曆：國定假日、寒暑假、考試高峰期、學校考試日期、日本假日、開團小幫手">
 <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-cream: #fdfbf7;
     --card-border: #f2dce0;
     --text-main: #5c4b51;
-    --color-holiday: #ff5e6c; /* 紅色：放假/連假 */
-    --color-exam: #8e9eab;    /* 灰色：國小考試 */
-    --color-event: #f6b93b;   /* 黃色：重要活動 */
-    --color-trip: #58b19f;    /* 綠色：出遊旅行 */
-    --color-bday: #a55eea;    /* 紫色：生日慶祝 */
-    --color-note: #4a90e2;    /* 藍色：特別提醒 */
+    --color-holiday: #ff5e6c; /* 紅：放假 */
+    --color-exam: #8e9eab;    /* 灰：考試 */
+    --color-event: #f6b93b;   /* 黃：候選開團 */
+    --color-trip: #58b19f;    /* 綠：已開團 */
+    --color-bday: #a55eea;    /* 紫：私人行程 */
+    --color-note: #4a90e2;    /* 藍：提醒 */
+    --mark-break: #20bf6b;    /* 寒暑假線條 */
+    --mark-peak: #8e9eab;     /* 考試高峰三角 */
+    --mark-big: #e17055;      /* 學測/分科三角 */
   }
 
   * { box-sizing: border-box; }
@@ -34,12 +37,10 @@
     align-items: center;
   }
 
-  /* 只有月曆格子不能選取文字，輸入框仍可正常選取 */
   .calendar-grid { user-select: none; -webkit-user-select: none; }
-  /* 畫筆模式時，手機拖曳不要捲動頁面 */
   body.brush-mode .calendar-grid { touch-action: none; }
 
-  /* 標題區塊 */
+  /* 標題 */
   .header-banner {
     background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
     color: #fff;
@@ -51,14 +52,8 @@
     border: 3px solid #fff;
     max-width: 100%;
   }
-  .header-banner h1 {
-    margin: 0;
-    font-size: 23px;
-    letter-spacing: 2px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
-  }
+  .header-banner h1 { margin: 0; font-size: 23px; letter-spacing: 2px; text-shadow: 1px 1px 3px rgba(0,0,0,0.15); }
   .header-banner p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.95; }
-  .profile-name-print { display: none; }
 
   /* 工具列 */
   .toolbar, .range-bar {
@@ -77,7 +72,7 @@
     width: 100%;
   }
   .range-bar { background: #fffafa; border-color: #ffdde1; }
-  .profile-bar { background: #fbfaff; border-color: #e5dcf5; }
+  .tour-bar { background: #f6fbf9; border-color: #cdebe2; }
 
   .mode-group, .palette-group, .action-group, .range-group {
     display: flex;
@@ -108,8 +103,23 @@
   .btn.active { border-color: #5c4b51; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
   .btn-primary { background: #ff5e6c; color: #fff; }
   .btn-primary:hover { background: #ff4757; }
+  .btn-tour { background: #58b19f; color: #fff; }
+  .btn-tour:hover { background: #46a08e; }
   .btn-school { background: #8e9eab; color: #fff; }
   .btn-school:hover { background: #7a8b98; }
+
+  .layer-chk {
+    font-size: 12.5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    background: #fff;
+    border: 1.5px solid #e2ece8;
+    border-radius: 14px;
+    padding: 4px 9px;
+  }
 
   select, input[type="text"], input[type="date"] {
     padding: 6px 10px;
@@ -124,7 +134,7 @@
   }
   select:focus, input[type="text"]:focus, input[type="date"]:focus { border-color: #ff5e6c; }
 
-  /* 顏色選擇鈕 */
+  /* 畫筆顏色 */
   .swatch-btn {
     padding: 5px 11px;
     border-radius: 20px;
@@ -141,7 +151,7 @@
   .swatch-btn.active { border-color: #333; transform: scale(1.06); box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
   .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
 
-  /* 月曆主網格 */
+  /* 月曆 */
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -170,22 +180,16 @@
     border-bottom: 2px dashed #f5e6e8;
   }
 
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 3.5px;
-    padding: 6px;
-    table-layout: fixed;
-  }
+  table { width: 100%; border-collapse: separate; border-spacing: 3.5px; padding: 6px; table-layout: fixed; }
   th { font-size: 12px; color: #9e8b90; padding: 3px 0; font-weight: bold; }
   th:first-child, th:last-child { color: #e87a84; }
 
   td {
-    height: 52px;
+    height: 66px;
     border-radius: 10px;
     text-align: center;
     vertical-align: top;
-    padding: 3px 2px 2px 2px;
+    padding: 3px 2px 5px 2px;
     cursor: pointer;
     position: relative;
     transition: transform 0.1s ease, background-color 0.15s ease;
@@ -200,9 +204,7 @@
     z-index: 2;
     box-shadow: 0 3px 8px rgba(0,0,0,0.12);
   }
-  /* 今天 */
   td.today { border: 2px solid #5c4b51 !important; }
-  td.today .day-num::after { content: "今"; font-size: 8px; margin-left: 2px; vertical-align: top; }
 
   .day-num { font-size: 14px; font-weight: bold; line-height: 1.1; margin-bottom: 2px; }
   .day-label {
@@ -238,11 +240,77 @@
   td.color-bday    { background-color: var(--color-bday) !important; color: #fff; }
   td.color-note    { background-color: var(--color-note) !important; color: #fff; }
 
-  /* 底部圖例 */
+  /* 圖層標記 */
+  td.in-break::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 2px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--mark-break);
+  }
+  td.in-break.has-color::after { background: #fff; opacity: 0.85; }
+  td.in-peak::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-top: 12px solid var(--mark-peak);
+    border-right: 12px solid transparent;
+  }
+  td.in-big::before { border-top-color: var(--mark-big); }
+  .jp-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #fff;
+    color: #e74c3c;
+    font-size: 8.5px;
+    line-height: 13px;
+    font-weight: bold;
+    box-shadow: 0 0 0 1px #e74c3c;
+  }
+  .jp-line {
+    display: inline-block;
+    max-width: 100%;
+    font-size: 8.5px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-top: 1.5px;
+    padding: 0 3px;
+    border-radius: 4px;
+    background: #fff0f0;
+    color: #e74c3c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .jp-line.ev { background: #f0eeff; color: #6c5ce7; }
+  .exam-badge {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 8.5px;
+    background: #5f6f7b;
+    color: #fff;
+    border-radius: 6px;
+    padding: 0 3px;
+    line-height: 12px;
+    z-index: 1;
+  }
+
+  /* 圖例 */
   .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px 18px;
+    gap: 12px 18px;
     margin-top: 18px;
     background: #fff;
     padding: 10px 26px;
@@ -253,9 +321,31 @@
     max-width: 1080px;
   }
   .legend-item { display: flex; align-items: center; gap: 7px; font-weight: bold; }
-  .legend-box { width: 20px; height: 15px; border-radius: 5px; display: inline-block; }
+  .legend-box { width: 20px; height: 15px; border-radius: 5px; display: inline-block; position: relative; overflow: hidden; }
+  .lg-plain { background: #faf7f8; border: 1.5px solid #ccc; }
+  .lg-break::after { content: ""; position: absolute; left: 2px; right: 2px; bottom: 1px; height: 3px; border-radius: 2px; background: var(--mark-break); }
+  .lg-peak::before, .lg-big::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-top: 10px solid var(--mark-peak);
+    border-right: 10px solid transparent;
+  }
+  .lg-big::before { border-top-color: var(--mark-big); }
+  .lg-jp {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #fff;
+    color: #e74c3c;
+    font-size: 9.5px;
+    line-height: 15px;
+    text-align: center;
+    box-shadow: 0 0 0 1px #e74c3c;
+  }
 
-  .footer-note { font-size: 11.5px; color: #a8959a; margin-top: 10px; text-align: center; max-width: 1080px; }
+  .footer-note { font-size: 11.5px; color: #a8959a; margin-top: 10px; text-align: center; max-width: 1080px; line-height: 1.6; }
 
   /* 彈出視窗 */
   .modal-overlay {
@@ -274,7 +364,7 @@
     background: #fff;
     border-radius: 26px;
     border: 4px solid #ffdde1;
-    width: 430px;
+    width: 440px;
     max-width: 96vw;
     max-height: 92vh;
     overflow-y: auto;
@@ -282,7 +372,8 @@
     box-shadow: 0 12px 30px rgba(0,0,0,0.18);
     animation: popIn 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
-  .modal-card.wide { width: 680px; border-color: #dfe5ea; }
+  .modal-card.wide { width: 700px; border-color: #dfe5ea; }
+  .modal-card.planner { border-color: #cdebe2; }
   @keyframes popIn {
     from { transform: scale(0.85); opacity: 0; }
     to   { transform: scale(1); opacity: 1; }
@@ -290,13 +381,23 @@
   .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; text-align: center; }
   .modal-hint {
     font-size: 12px;
-    line-height: 1.6;
+    line-height: 1.65;
     background: #f5f8fa;
     border: 1.5px dashed #c9d3db;
     border-radius: 12px;
     padding: 8px 12px;
     color: #5f6f7b;
     margin-bottom: 10px;
+  }
+  .day-info {
+    font-size: 12px;
+    line-height: 1.6;
+    background: #f6fbf9;
+    border: 1.5px dashed #cdebe2;
+    border-radius: 12px;
+    padding: 7px 11px;
+    color: #3d6b60;
+    margin-bottom: 4px;
   }
   .modal-label { font-size: 12.5px; font-weight: bold; margin: 11px 0 5px 0; display: block; color: #7c656b; }
   .modal-range-row {
@@ -349,7 +450,16 @@
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
   .btn-clear { background: #eee; color: #666; margin-right: auto; }
 
-  /* 學校考試設定列 */
+  /* 學校考試 */
+  .school-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+    background: #f5f8fa;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
   .exam-head, .exam-row {
     display: grid;
     grid-template-columns: 1.2fr 1.4fr 16px 1.4fr 1fr 34px;
@@ -369,9 +479,57 @@
     font-size: 14px;
   }
   .exam-del:hover { background: #ffdde1; }
-  .check-row { font-size: 12.5px; font-weight: bold; display: flex; align-items: center; gap: 6px; margin-top: 8px; color: #6d7d89; }
+  .check-row { font-size: 12.5px; font-weight: bold; display: flex; align-items: center; gap: 6px; color: #6d7d89; }
 
-  /* 提示小氣泡 */
+  /* 開團小幫手 */
+  .planner-section {
+    background: #f9fcfb;
+    border: 1.5px solid #e1f0eb;
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .sec-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #2b8a78; }
+  .planner-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; font-weight: bold; }
+  .result-note { font-size: 12px; color: #b07d2b; margin: 8px 0 0 0; }
+  .result-list { list-style: none; padding: 0; margin: 10px 0 0 0; display: flex; flex-direction: column; gap: 6px; }
+  .result-item {
+    width: 100%;
+    text-align: left;
+    border: 1.5px solid #dcefe8;
+    background: #fff;
+    border-radius: 12px;
+    padding: 8px 11px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .result-item:hover { border-color: #58b19f; background: #f2fbf8; }
+  .result-date { font-size: 14px; font-weight: bold; }
+  .result-rank {
+    display: inline-block;
+    background: #58b19f;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 11px;
+    padding: 0 7px;
+    margin-right: 6px;
+  }
+  .result-sum { font-size: 12px; color: #6d7d89; }
+  .check-card { margin-top: 10px; background: #fff; border-radius: 14px; border: 1.5px solid #e1f0eb; padding: 10px 13px; }
+  .verdict { font-size: 15px; font-weight: bold; margin-bottom: 6px; }
+  .verdict.good { color: #20a060; }
+  .verdict.mid  { color: #d9822b; }
+  .verdict.bad  { color: #d63031; }
+  .check-line { font-size: 13px; line-height: 1.7; }
+  .check-line.warn { color: #d9822b; }
+  .check-line.bad  { color: #d63031; }
+  .check-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* 提示 */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -405,88 +563,66 @@
     .divider { display: none; }
     .toolbar, .range-bar { padding: 10px; }
     #barLabelInput, #barSubInput { width: 100% !important; }
-    td { height: 58px; }
+    td { height: 72px; }
     .exam-head { display: none; }
-    .exam-row {
-      grid-template-columns: 1fr 1fr;
-      background: #f7f9fa;
-      padding: 8px;
-      border-radius: 12px;
-    }
+    .exam-row { grid-template-columns: 1fr 1fr; background: #f7f9fa; padding: 8px; border-radius: 12px; }
     .exam-row .exam-tilde { display: none; }
   }
 
-  /* 列印 (A4 一頁) */
+  /* 列印 A4 一頁 */
   @media print {
     @page { size: A4 portrait; margin: 8mm; }
     body { background: #fff; padding: 0; }
     .toolbar, .range-bar, .toast, .modal-overlay, .footer-note { display: none !important; }
-    .header-banner {
-      padding: 6px 20px;
-      margin-bottom: 8px;
-      box-shadow: none;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
+    .header-banner { padding: 6px 20px; margin-bottom: 8px; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .header-banner h1 { font-size: 19px; }
     .header-banner p { display: none; }
-    .profile-name-print { display: inline; }
     .calendar-grid { gap: 8px; max-width: 100%; grid-template-columns: repeat(3, 1fr); }
     .month-card { box-shadow: none; break-inside: avoid; border-radius: 14px; }
-    .month-header {
-      padding: 4px 10px;
-      font-size: 14px;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
+    .month-header { padding: 4px 10px; font-size: 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     table { border-spacing: 2px; padding: 4px; }
-    td {
-      height: 41px;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
+    td { height: 46px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .jp-line { font-size: 7px; margin-top: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     td.today { border: 1.5px solid transparent !important; }
-    td.today .day-num::after { content: ""; }
     .day-num { font-size: 12px; margin-bottom: 1px; }
     .day-label { font-size: 9px; padding: 0 2px; }
     .day-subnote { font-size: 8.5px; }
-    .legend {
-      margin-top: 8px;
-      padding: 5px 14px;
-      font-size: 11px;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
+    .jp-badge, .exam-badge, .legend-box, td::before, td::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .legend { margin-top: 8px; padding: 5px 14px; font-size: 10.5px; gap: 6px 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>
 </head>
 <body>
 
 <div class="header-banner">
-  <h1>🌸 中華民國 116 年（2027）可愛行事曆<span class="profile-name-print" id="printProfileName"></span> 🌸</h1>
-  <p>✨ 國定假日已依人事總處公告標好・學校考試日期可依自己學校設定・可分享給同班家長 ✨</p>
+  <h1>🌸 中華民國 116 年（2027）開團行事曆 🌸</h1>
+  <p>✨ 國定假日・寒暑假・考試高峰期・家長回報的學校考試・日本假日，一次看清楚哪天適合開團 ✨</p>
 </div>
 
-<!-- 第一列：行事曆切換 + 學校考試 + 分享備份 -->
-<div class="toolbar profile-bar">
+<!-- 第一列：開團工具 + 圖層 -->
+<div class="toolbar tour-bar">
   <div class="action-group">
-    <span class="bar-title">👧 目前行事曆：</span>
-    <select id="profileSelect" onchange="switchProfile(this.value)"></select>
-    <button class="btn" onclick="addProfile()">➕ 新增</button>
-    <button class="btn" onclick="renameProfile()">✏️ 改名</button>
-    <button class="btn" onclick="deleteProfile()" style="color:#d63031;">🗑️ 刪除</button>
+    <button class="btn btn-tour" onclick="openPlanner()">🧳 開團小幫手</button>
+    <button class="btn btn-school" onclick="openSchoolModal()">🏫 學校考試日期</button>
+    <button class="btn" onclick="copyReportLink()">📨 複製家長回報連結</button>
   </div>
   <div class="divider"></div>
   <div class="action-group">
-    <button class="btn btn-school" onclick="openExamModal()">🏫 設定我的學校考試日期</button>
-    <button class="btn" onclick="copyShareLink()">🔗 複製分享連結</button>
+    <span class="bar-title">顯示：</span>
+    <label class="layer-chk"><input type="checkbox" id="lyBreaks" onchange="toggleLayer('breaks', this.checked)"> 🎒 寒暑假</label>
+    <label class="layer-chk"><input type="checkbox" id="lyRisk" onchange="toggleLayer('risk', this.checked)"> 📝 考試高峰</label>
+    <label class="layer-chk"><input type="checkbox" id="lySchool" onchange="toggleLayer('school', this.checked)"> ✏️ 學校考試</label>
+    <label class="layer-chk"><input type="checkbox" id="lyJp" onchange="toggleLayer('jp', this.checked)"> 🎌 日本節日</label>
+  </div>
+  <div class="divider"></div>
+  <div class="action-group">
     <button class="btn" onclick="exportJSON()">💾 匯出備份</button>
     <button class="btn" onclick="document.getElementById('importFile').click()">📂 匯入備份</button>
     <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJSON(this)">
   </div>
 </div>
 
-<!-- 第二列：快速日期區間設定 -->
+<!-- 第二列：區間快速設定 -->
 <div class="range-bar">
   <div class="range-group">
     <span style="font-size:13.5px;font-weight:bold;color:#d63031;">📅 區間快速設定：</span>
@@ -496,60 +632,54 @@
     <select id="barEndM" onchange="updateDayOptions('barEndM', 'barEndD', false)"></select>
     <select id="barEndD"></select>
 
-    <input type="text" id="barLabelInput" placeholder="🏷️ 名稱 (如: 露營、期中考)" style="width:155px;" maxlength="10">
-    <input type="text" id="barSubInput" placeholder="💬 下方加註 (如: 帶睡袋、國數)" style="width:165px;" maxlength="14">
+    <input type="text" id="barLabelInput" placeholder="🏷️ 名稱 (如: 北海道5日)" style="width:155px;" maxlength="10">
+    <input type="text" id="barSubInput" placeholder="💬 加註 (如: 剩3位)" style="width:150px;" maxlength="14">
 
     <select id="barColorSelect">
-      <option value="holiday">🍓 放假/連假 (紅)</option>
-      <option value="exam">✏️ 國小考試 (灰)</option>
-      <option value="event">⭐ 重要活動 (黃)</option>
-      <option value="trip" selected>🏕️ 出遊旅行 (綠)</option>
-      <option value="bday">🎂 家庭生日 (紫)</option>
-      <option value="note">📌 特別提醒 (藍)</option>
-      <option value="none">⬜ 平日無底色 (白)</option>
+      <option value="event">⭐ 候選開團 (黃)</option>
+      <option value="trip" selected>✈️ 已開團 (綠)</option>
+      <option value="note">📌 提醒/截止 (藍)</option>
+      <option value="bday">🎂 私人行程 (紫)</option>
+      <option value="exam">✏️ 考試 (灰)</option>
+      <option value="holiday">🍓 放假 (紅)</option>
+      <option value="none">⬜ 無底色 (白)</option>
     </select>
 
     <button class="btn btn-primary" onclick="applyTopBarRange()">✨ 套用區間</button>
   </div>
 </div>
 
-<!-- 第三列：互動模式與畫筆 -->
+<!-- 第三列：點擊模式與畫筆 -->
 <div class="toolbar">
   <div class="mode-group">
     <span class="bar-title">點擊模式：</span>
     <button class="btn active" id="modeEditBtn" onclick="setMode('edit')">📝 點擊編輯</button>
-    <button class="btn" id="modeBrushBtn" onclick="setMode('brush')">🖌️ 畫筆塗色（拖曳只改色）</button>
+    <button class="btn" id="modeBrushBtn" onclick="setMode('brush')">🖌️ 畫筆塗色</button>
   </div>
-
   <div class="divider"></div>
-
-  <div class="palette-group" id="paletteBar">
-    <span class="bar-title">畫筆顏色：</span>
-    <button class="swatch-btn active" data-color="holiday" onclick="selectBrush('holiday')" style="background:#ffe5e7;color:#d63031;">
-      <span class="dot" style="background:var(--color-holiday)"></span>放假
-    </button>
-    <button class="swatch-btn" data-color="exam" onclick="selectBrush('exam')" style="background:#eceff1;color:#546e7a;">
-      <span class="dot" style="background:var(--color-exam)"></span>考試
-    </button>
+  <div class="palette-group">
+    <span class="bar-title">畫筆：</span>
     <button class="swatch-btn" data-color="event" onclick="selectBrush('event')" style="background:#fff4e0;color:#d9822b;">
-      <span class="dot" style="background:var(--color-event)"></span>活動
+      <span class="dot" style="background:var(--color-event)"></span>候選
     </button>
-    <button class="swatch-btn" data-color="trip" onclick="selectBrush('trip')" style="background:#e3f6f2;color:#2b8a78;">
-      <span class="dot" style="background:var(--color-trip)"></span>出遊
-    </button>
-    <button class="swatch-btn" data-color="bday" onclick="selectBrush('bday')" style="background:#f2ebfb;color:#7b4ecb;">
-      <span class="dot" style="background:var(--color-bday)"></span>生日
+    <button class="swatch-btn active" data-color="trip" onclick="selectBrush('trip')" style="background:#e3f6f2;color:#2b8a78;">
+      <span class="dot" style="background:var(--color-trip)"></span>已開團
     </button>
     <button class="swatch-btn" data-color="note" onclick="selectBrush('note')" style="background:#e6f3fc;color:#2979b9;">
       <span class="dot" style="background:var(--color-note)"></span>提醒
     </button>
-    <button class="swatch-btn" data-color="none" onclick="selectBrush('none')" style="background:#f5f5f5;color:#555;">
-      🧹 擦色
+    <button class="swatch-btn" data-color="bday" onclick="selectBrush('bday')" style="background:#f2ebfb;color:#7b4ecb;">
+      <span class="dot" style="background:var(--color-bday)"></span>私人
     </button>
+    <button class="swatch-btn" data-color="exam" onclick="selectBrush('exam')" style="background:#eceff1;color:#546e7a;">
+      <span class="dot" style="background:var(--color-exam)"></span>考試
+    </button>
+    <button class="swatch-btn" data-color="holiday" onclick="selectBrush('holiday')" style="background:#ffe5e7;color:#d63031;">
+      <span class="dot" style="background:var(--color-holiday)"></span>放假
+    </button>
+    <button class="swatch-btn" data-color="none" onclick="selectBrush('none')" style="background:#f5f5f5;color:#555;">🧹 擦色</button>
   </div>
-
   <div class="divider"></div>
-
   <div class="action-group">
     <button class="btn" onclick="undo()">↩️ 復原</button>
     <button class="btn" onclick="window.print()">🖨️ 列印 / 存 PDF</button>
@@ -557,31 +687,38 @@
   </div>
 </div>
 
-<!-- 月曆主體 -->
+<!-- 月曆 -->
 <div class="calendar-grid" id="calendar"></div>
 
 <!-- 圖例 -->
 <div class="legend">
-  <div class="legend-item"><span class="legend-box" style="background:#faf7f8;border:1.5px solid #ccc;"></span> 平日上班上課</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-holiday);"></span> 🍓 放假日（含連假）</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-exam);"></span> ✏️ 國小考試</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-event);"></span> ⭐ 重要活動</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-trip);"></span> 🏕️ 出遊旅行</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-bday);"></span> 🎂 家庭生日</div>
-  <div class="legend-item"><span class="legend-box" style="background:var(--color-note);"></span> 📌 特別提醒</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-holiday);"></span> 台灣放假</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-event);"></span> 候選開團</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-trip);"></span> 已開團</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-exam);"></span> 學校考試</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-note);"></span> 提醒</div>
+  <div class="legend-item"><span class="legend-box" style="background:var(--color-bday);"></span> 私人</div>
+  <div class="legend-item"><span class="legend-box lg-plain lg-break"></span> 國中小寒暑假</div>
+  <div class="legend-item"><span class="legend-box lg-plain lg-peak"></span> 考試高峰期（估計）</div>
+  <div class="legend-item"><span class="legend-box lg-plain lg-big"></span> 學測／分科</div>
+  <div class="legend-item"><span class="legend-box lg-jp">日</span><span class="jp-line" style="font-size:11px;margin:0;">成人之日</span> 日本放假</div>
+  <div class="legend-item"><span class="jp-line ev" style="font-size:11px;margin:0;">七夕</span> 日本節慶活動</div>
 </div>
 
 <div class="footer-note">
-  放假日依行政院人事行政總處公告之 116 年政府行政機關辦公日曆表；學校實際放假與考試日期請以孩子學校公告的學年度行事曆為準。<br>
-  資料只存在這台裝置的瀏覽器裡，換手機或換電腦請用「匯出備份」或「分享連結」。
+  放假日依行政院人事行政總處公告之 116 年辦公日曆表。寒暑假以台北市 115 學年度行事曆為參考（寒假 1/21～2/10、暑假 7/1 起）。<br>
+  「考試高峰期」是多數國小常見的考試時段估計，實際以各校公告為準；請用「📨 家長回報連結」收集團員孩子學校的真實考試日期。<br>
+  日本國定假日依內閣府公告的令和9年國民の祝日；祭典為固定日期的知名活動，櫻花、紅葉與日本學校假期為大約時段（滑鼠移到格子上或點格子可看完整說明）。<br>
+  資料只存在這台裝置的瀏覽器裡，換電腦請用「匯出備份」。
 </div>
 
-<!-- 點擊日期：編輯視窗 -->
+<!-- 點日期：編輯視窗 -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-card">
-    <div class="modal-title">🌸 編輯日期／區間加註 🌸</div>
+    <div class="modal-title">🌸 編輯日期／區間 🌸</div>
+    <div class="day-info" id="modalDayInfo"></div>
 
-    <label class="modal-label">📅 日期區間（單日或幾號到幾號）：</label>
+    <label class="modal-label">📅 日期區間：</label>
     <div class="modal-range-row">
       <select id="modStartM" onchange="updateDayOptions('modStartM', 'modStartD', true)"></select>
       <select id="modStartD" onchange="syncEndIfNeeded('mod')"></select>
@@ -590,73 +727,71 @@
       <select id="modEndD"></select>
     </div>
 
-    <label class="modal-label">🏷️ 第一行【節日／主名稱】：</label>
-    <input type="text" id="modalLabelInput" class="modal-input" placeholder="例如：除夕、期中考、露營..." maxlength="10">
+    <label class="modal-label">🏷️ 第一行【名稱】：</label>
+    <input type="text" id="modalLabelInput" class="modal-input" placeholder="例如：北海道5日、報名截止..." maxlength="10">
     <div class="quick-tags">
       <span style="font-size:11px;color:#999;line-height:22px;">快速代入：</span>
-      <span class="tag-chip" onclick="setQuickLabel('期中考')">期中考</span>
-      <span class="tag-chip" onclick="setQuickLabel('期末考')">期末考</span>
-      <span class="tag-chip" onclick="setQuickLabel('校外教學')">校外教學</span>
-      <span class="tag-chip" onclick="setQuickLabel('運動會')">運動會</span>
-      <span class="tag-chip" onclick="setQuickLabel('補假')">補假</span>
-      <span class="tag-chip" onclick="setQuickLabel('補課')">補課</span>
-      <span class="tag-chip" onclick="setQuickLabel('開學')">開學</span>
-      <span class="tag-chip" onclick="setQuickLabel('休業式')">休業式</span>
+      <span class="tag-chip" onclick="setQuickLabel('候選團')">候選團</span>
+      <span class="tag-chip" onclick="setQuickLabel('出發')">出發</span>
+      <span class="tag-chip" onclick="setQuickLabel('回程')">回程</span>
+      <span class="tag-chip" onclick="setQuickLabel('報名截止')">報名截止</span>
+      <span class="tag-chip" onclick="setQuickLabel('說明會')">說明會</span>
+      <span class="tag-chip" onclick="setQuickLabel('尾款')">尾款</span>
     </div>
 
-    <label class="modal-label">💬 第二行【補充加註】：</label>
-    <input type="text" id="modalSubInput" class="modal-input" placeholder="例如：考國語/自然、帶便當..." maxlength="14">
+    <label class="modal-label">💬 第二行【加註】：</label>
+    <input type="text" id="modalSubInput" class="modal-input" placeholder="例如：剩3位、已成團..." maxlength="14">
 
-    <label class="modal-label">🎨 底色標記：</label>
-    <div class="modal-colors" id="modalColorOptions">
-      <div class="modal-color-opt" data-color="none" onclick="pickModalColor('none')">
-        <span class="dot" style="background:#faf7f8;border:1px solid #999;"></span> 平日 (無底色)
-      </div>
-      <div class="modal-color-opt" data-color="holiday" onclick="pickModalColor('holiday')">
-        <span class="dot" style="background:var(--color-holiday);"></span> 🍓 放假日 (紅)
-      </div>
-      <div class="modal-color-opt" data-color="exam" onclick="pickModalColor('exam')">
-        <span class="dot" style="background:var(--color-exam);"></span> ✏️ 國小考試 (灰)
-      </div>
-      <div class="modal-color-opt" data-color="event" onclick="pickModalColor('event')">
-        <span class="dot" style="background:var(--color-event);"></span> ⭐ 重要活動 (黃)
-      </div>
-      <div class="modal-color-opt" data-color="trip" onclick="pickModalColor('trip')">
-        <span class="dot" style="background:var(--color-trip);"></span> 🏕️ 出遊旅行 (綠)
-      </div>
-      <div class="modal-color-opt" data-color="bday" onclick="pickModalColor('bday')">
-        <span class="dot" style="background:var(--color-bday);"></span> 🎂 家庭生日 (紫)
-      </div>
-      <div class="modal-color-opt" data-color="note" onclick="pickModalColor('note')">
-        <span class="dot" style="background:var(--color-note);"></span> 📌 特別提醒 (藍)
-      </div>
+    <label class="modal-label">🎨 底色：</label>
+    <div class="modal-colors">
+      <div class="modal-color-opt" data-color="none" onclick="pickModalColor('none')"><span class="dot" style="background:#faf7f8;border:1px solid #999;"></span> 無底色</div>
+      <div class="modal-color-opt" data-color="event" onclick="pickModalColor('event')"><span class="dot" style="background:var(--color-event);"></span> ⭐ 候選開團</div>
+      <div class="modal-color-opt" data-color="trip" onclick="pickModalColor('trip')"><span class="dot" style="background:var(--color-trip);"></span> ✈️ 已開團</div>
+      <div class="modal-color-opt" data-color="note" onclick="pickModalColor('note')"><span class="dot" style="background:var(--color-note);"></span> 📌 提醒/截止</div>
+      <div class="modal-color-opt" data-color="bday" onclick="pickModalColor('bday')"><span class="dot" style="background:var(--color-bday);"></span> 🎂 私人行程</div>
+      <div class="modal-color-opt" data-color="exam" onclick="pickModalColor('exam')"><span class="dot" style="background:var(--color-exam);"></span> ✏️ 考試</div>
+      <div class="modal-color-opt" data-color="holiday" onclick="pickModalColor('holiday')"><span class="dot" style="background:var(--color-holiday);"></span> 🍓 放假</div>
     </div>
 
     <div class="modal-actions">
       <button class="btn btn-clear" onclick="clearModalRange()">🧹 清除此區間</button>
       <button class="btn" onclick="closeModal('editModal')">取消</button>
-      <button class="btn btn-primary" onclick="saveModalRange()">儲存設定 ✨</button>
+      <button class="btn btn-primary" onclick="saveModalRange()">儲存 ✨</button>
     </div>
   </div>
 </div>
 
-<!-- 學校考試日期設定視窗 -->
-<div class="modal-overlay" id="examModal">
+<!-- 學校考試日期 -->
+<div class="modal-overlay" id="schoolModal">
   <div class="modal-card wide">
-    <div class="modal-title">🏫 我的學校考試日期</div>
-    <div class="modal-hint">
-      每間國小的考試日期都不一樣，請打開孩子學校網站的「學年度行事曆」對照填寫。<br>
-      📌 2027 年會跨兩個學年度：<b>1 月</b>＝115學年度上學期期末、<b>4～6 月</b>＝115學年度下學期、<b>9～12 月</b>＝116學年度上學期。<br>
-      💡 填好後按「🔗 複製分享連結」，同班家長打開就能直接匯入，不用每個人重填。
+    <div class="modal-title" id="schoolModalTitle">🏫 學校考試日期</div>
+    <div class="modal-hint" id="schoolHintAdmin">
+      每間國小考試日期不同，建議用「📨 複製家長回報連結」貼到團員 LINE 群組，請家長自己填孩子學校的考試日期，
+      家長按送出會產生一個連結，傳回給你點一下就自動加入這裡。也可以自己在這裡新增學校。<br>
+      📌 2027 年跨兩個學年度：<b>1 月</b>＝115上期末、<b>4～6 月</b>＝115下期中/期末、<b>10～11 月</b>＝116上期中。
+    </div>
+    <div class="modal-hint" id="schoolHintReport" style="display:none">
+      家長您好 👋 為了安排不撞到孩子考試的出團日期，麻煩填一下孩子學校的考試日期（可以看學校網站的「學年度行事曆」）。<br>
+      填好後按「📤 產生回報連結」，再把連結貼回 LINE 傳給團主就完成了，謝謝！
     </div>
 
+    <div class="school-bar" id="schoolBar">
+      <span class="bar-title">學校：</span>
+      <select id="schoolSelect" onchange="switchSchool(this.value)"></select>
+      <button class="btn" onclick="addSchool()">➕ 新增學校</button>
+      <button class="btn" onclick="deleteSchool()" style="color:#d63031;">🗑️ 刪除</button>
+      <label class="check-row"><input type="checkbox" id="schoolEnabled"> 顯示在行事曆</label>
+    </div>
+
+    <label class="modal-label">🏫 學校名稱（可加年級或團員名，如：光明國小-王小明）</label>
+    <input type="text" id="schoolNameInput" class="modal-input" maxlength="16" placeholder="例如：光明國小">
+
+    <label class="modal-label">✏️ 考試日期</label>
     <div class="exam-head">
       <span>名稱</span><span>開始日期</span><span></span><span>結束日期</span><span>加註</span><span></span>
     </div>
     <div id="examRows"></div>
-
     <button class="btn" onclick="addExamRow()" style="margin-top:4px;">➕ 新增一次考試</button>
-    <label class="check-row"><input type="checkbox" id="skipHoliday" checked> 自動略過週末與國定假日</label>
 
     <datalist id="examLabelList">
       <option value="期中考"></option>
@@ -665,27 +800,78 @@
       <option value="第二次段考"></option>
       <option value="第三次段考"></option>
       <option value="定期評量"></option>
-      <option value="補考"></option>
+      <option value="校外教學"></option>
     </datalist>
 
-    <div class="modal-actions">
-      <button class="btn btn-clear" onclick="loadSampleExams()">📋 載入範例日期</button>
-      <button class="btn" onclick="closeModal('examModal')">取消</button>
-      <button class="btn btn-primary" style="background:#8e9eab;" onclick="applyExamSettings()">套用到行事曆 ✨</button>
+    <div class="modal-actions" id="schoolActionsAdmin">
+      <button class="btn btn-clear" onclick="loadSampleExams()">📋 範例</button>
+      <button class="btn" onclick="shareSchool()">🔗 分享這間學校</button>
+      <button class="btn" onclick="closeModal('schoolModal')">關閉</button>
+      <button class="btn btn-primary" style="background:#8e9eab;" onclick="saveSchoolAndApply()">儲存並套用 ✨</button>
+    </div>
+    <div class="modal-actions" id="schoolActionsReport" style="display:none">
+      <button class="btn" onclick="closeModal('schoolModal')">取消</button>
+      <button class="btn btn-primary" onclick="sendReport()">📤 產生回報連結並複製</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toastMsg">已成功更新行事曆！</div>
+<!-- 開團小幫手 -->
+<div class="modal-overlay" id="plannerModal">
+  <div class="modal-card wide planner">
+    <div class="modal-title">🧳 開團小幫手</div>
+
+    <div class="planner-section">
+      <div class="sec-title">🔍 幫我找適合的出團日</div>
+      <div class="planner-row">
+        <span>天數</span>
+        <select id="plLen"></select>
+        <span>客群</span>
+        <select id="plAud">
+          <option value="family">👨‍👩‍👧 親子團</option>
+          <option value="worker">💼 上班族團</option>
+          <option value="senior">👴 長輩／退休團</option>
+        </select>
+        <span>出發月份</span>
+        <select id="plFrom"></select>
+        <span>～</span>
+        <select id="plTo"></select>
+        <label class="check-row"><input type="checkbox" id="plAvoidJP" checked> 避開日本假日</label>
+        <button class="btn btn-tour" onclick="findDates()">🔍 找日子</button>
+      </div>
+      <div class="result-note" id="plNote"></div>
+      <ol class="result-list" id="plResults"></ol>
+    </div>
+
+    <div class="planner-section">
+      <div class="sec-title">🩺 檢查某個出團日期</div>
+      <div class="planner-row">
+        <input type="date" id="chkStart">
+        <span>～</span>
+        <input type="date" id="chkEnd">
+        <button class="btn btn-tour" onclick="checkRange()">檢查</button>
+      </div>
+      <div id="chkResult"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('plannerModal')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastMsg"></div>
 
 <script>
 // ==================== 基本設定 ====================
 const YEAR = 2027;
-const STORE_KEY = "cute_calendar_2027_v3";
-const OLD_KEY = "cute_calendar_2027_v2_subnote"; // 舊版資料，會自動搬過來
+const STORE_KEY = "tour_calendar_2027_v4";
+const V3_KEY = "cute_calendar_2027_v3";
+const V2_KEY = "cute_calendar_2027_v2_subnote";
 const COLORS = ["none", "holiday", "exam", "event", "trip", "bday", "note"];
+const WEEK = "日一二三四五六";
 
-// 116年(2027年) 政府行政機關放假日（含週末）
+// 116年 政府行政機關放假日（含週末）
 const defaultHolidays = {
   1: [1, 2, 3, 9, 10, 16, 17, 23, 24, 30, 31],
   2: [4, 5, 6, 7, 8, 9, 10, 13, 14, 20, 21, 27, 28],
@@ -701,7 +887,6 @@ const defaultHolidays = {
   12: [4, 5, 11, 12, 18, 19, 24, 25, 26, 31]
 };
 
-// 節日名稱（2027 農曆初一＝2/6，初二＝2/7，2/9～2/10 補假）
 const defaultHolidayLabels = {
   "1-1":   { label: "元旦", sub: "開國紀念日" },
   "2-4":   { label: "小年夜", sub: "" },
@@ -729,7 +914,82 @@ const defaultHolidayLabels = {
   "12-31": { label: "補假", sub: "117元旦補假" }
 };
 
-// 範例考試日期（只是範例，請改成自己學校公告的日期）
+// 國中小寒暑假（台北市 115 學年度行事曆參考）
+const SCHOOL_BREAKS = [
+  { name: "寒假", start: "2027-01-21", end: "2027-02-10" },
+  { name: "暑假", start: "2027-07-01", end: "2027-08-29" }
+];
+
+// 多數國小常見考試時段（估計，各校不同）
+const EXAM_PEAKS = [
+  { name: "115上期末考高峰", start: "2027-01-11", end: "2027-01-20" },
+  { name: "115下期中考高峰", start: "2027-04-12", end: "2027-04-30" },
+  { name: "115下期末考高峰", start: "2027-06-14", end: "2027-06-30" },
+  { name: "116上期中考高峰", start: "2027-10-25", end: "2027-11-12" }
+];
+
+// 全國大考（有高中考生的家庭不方便出遊）
+const BIG_EXAMS = [
+  { name: "大學學測", start: "2027-01-22", end: "2027-01-24" },
+  { name: "分科測驗", start: "2027-07-10", end: "2027-07-11" }
+];
+
+// 日本節日（令和9年國民の祝日依內閣府公告）
+// t: holiday＝日本國定假日（放假） / off＝日本習慣休假（人潮多） / event＝節慶活動 / season＝季節・日本學校假期（約）
+const JP_DAYS = [
+  { s: "2027-01-01", n: "元旦", t: "holiday" },
+  { s: "2027-01-02", e: "2027-01-03", n: "正月", t: "off" },
+  { s: "2027-01-07", n: "七草粥", t: "event" },
+  { s: "2027-01-11", n: "成人之日", t: "holiday" },
+  { s: "2027-02-03", n: "節分", t: "event" },
+  { s: "2027-02-11", n: "建國紀念日", t: "holiday" },
+  { s: "2027-02-14", n: "情人節", t: "event" },
+  { s: "2027-02-23", n: "天皇誕生日", t: "holiday" },
+  { s: "2027-03-03", n: "女兒節", t: "event" },
+  { s: "2027-03-14", n: "白色情人節", t: "event" },
+  { s: "2027-03-21", n: "春分之日", t: "holiday" },
+  { s: "2027-03-22", n: "春分補休", t: "holiday" },
+  { s: "2027-04-01", n: "新年度", t: "event" },
+  { s: "2027-04-29", n: "昭和之日", t: "holiday" },
+  { s: "2027-05-01", e: "2027-05-02", n: "黃金週", t: "off" },
+  { s: "2027-05-03", n: "憲法紀念日", t: "holiday" },
+  { s: "2027-05-04", n: "綠之日", t: "holiday" },
+  { s: "2027-05-05", n: "兒童之日", t: "holiday" },
+  { s: "2027-05-09", n: "母親節", t: "event" },
+  { s: "2027-05-15", n: "京都葵祭", t: "event" },
+  { s: "2027-06-20", n: "父親節", t: "event" },
+  { s: "2027-07-07", n: "七夕", t: "event" },
+  { s: "2027-07-17", n: "祇園祭山鉾", t: "event" },
+  { s: "2027-07-19", n: "海之日", t: "holiday" },
+  { s: "2027-07-24", n: "祇園祭後祭", t: "event" },
+  { s: "2027-07-24", e: "2027-07-25", n: "大阪天神祭", t: "event" },
+  { s: "2027-07-31", n: "隅田川花火", t: "event" },
+  { s: "2027-08-02", e: "2027-08-07", n: "青森睡魔祭", t: "event" },
+  { s: "2027-08-06", e: "2027-08-08", n: "仙台七夕", t: "event" },
+  { s: "2027-08-11", n: "山之日", t: "holiday" },
+  { s: "2027-08-12", e: "2027-08-15", n: "德島阿波舞", t: "event" },
+  { s: "2027-08-13", e: "2027-08-16", n: "盂蘭盆", t: "off" },
+  { s: "2027-08-16", n: "京都五山送火", t: "event" },
+  { s: "2027-09-20", n: "敬老之日", t: "holiday" },
+  { s: "2027-09-23", n: "秋分之日", t: "holiday" },
+  { s: "2027-10-11", n: "體育之日", t: "holiday" },
+  { s: "2027-10-22", n: "京都時代祭", t: "event" },
+  { s: "2027-10-31", n: "萬聖節", t: "event" },
+  { s: "2027-11-03", n: "文化之日", t: "holiday" },
+  { s: "2027-11-15", n: "七五三", t: "event" },
+  { s: "2027-11-23", n: "勤勞感謝日", t: "holiday" },
+  { s: "2027-12-24", e: "2027-12-25", n: "聖誕節", t: "event" },
+  { s: "2027-12-29", e: "2027-12-31", n: "年末休假", t: "off" },
+  { s: "2027-12-31", n: "大晦日", t: "event" },
+  // 季節與日本學校假期（約，會影響人潮）
+  { s: "2027-01-01", e: "2027-01-07", n: "日本學校寒假（約）", t: "season" },
+  { s: "2027-03-20", e: "2027-04-06", n: "日本學校春假（約）", t: "season" },
+  { s: "2027-03-25", e: "2027-04-10", n: "櫻花季（本州約）", t: "season" },
+  { s: "2027-07-20", e: "2027-08-31", n: "日本學校暑假（約）", t: "season" },
+  { s: "2027-11-10", e: "2027-12-05", n: "紅葉季（關西約）", t: "season" },
+  { s: "2027-12-25", e: "2027-12-31", n: "日本學校寒假（約）", t: "season" }
+];
+
 const sampleExams = [
   { label: "期末考", start: "2027-01-13", end: "2027-01-14", sub: "115上" },
   { label: "期中考", start: "2027-04-20", end: "2027-04-21", sub: "115下" },
@@ -752,27 +1012,38 @@ const monthConfigs = [
   { name: "十二月", icon: "⛄", bg: "#eef5fc" }
 ];
 
-let state = null;          // { version, current, profiles: { id: { name, data, exams } } }
+// ==================== 狀態 ====================
+let state = null; // { version, data, schools:[{id,name,enabled,exams}], layers }
 let currentMode = "edit";
-let currentBrush = "holiday";
+let currentBrush = "trip";
 let isDragging = false;
 let lastPaintedKey = null;
 let selectedModalColor = "none";
 let undoStack = [];
+let schoolMap = {};
+let editingSchoolId = null;
+let reportMode = false;
+
 const DEFAULT_DATA = buildDefaultData();
+const STATIC_INFO = buildStaticInfo();
 
 // ==================== 工具函式 ====================
 function daysInMonth(m) { return new Date(YEAR, m, 0).getDate(); }
 function keyOf(m, d) { return `${m}-${d}`; }
-function cur() { return state.profiles[state.current]; }
-function getData() { return cur().data; }
-function newId() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+function pad(n) { return String(n).padStart(2, "0"); }
+function iso(m, d) { return `${YEAR}-${pad(m)}-${pad(d)}`; }
+function newId() { return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function weekdayOf(m, d) { return new Date(YEAR, m - 1, d).getDay(); }
+function fmt(m, d) { return `${m}/${d}(${WEEK[weekdayOf(m, d)]})`; }
+function fmtDate(dt) { return fmt(dt.getMonth() + 1, dt.getDate()); }
+function isTwOff(key) { return !!(DEFAULT_DATA[key] && DEFAULT_DATA[key].color === "holiday"); }
+function baseUrl() { return location.origin + location.pathname; }
 
 function parseDateInput(v) {
-  if (!v) return null;
+  if (!v || typeof v !== "string") return null;
   const [y, m, d] = v.split("-").map(Number);
-  if (y !== YEAR || !m || !d) return null;
+  if (y !== YEAR || !m || !d || m > 12 || d > daysInMonth(m)) return null;
   return { m, d };
 }
 
@@ -789,7 +1060,14 @@ function getKeysInRange(sm, sd, em, ed) {
   return result;
 }
 
-// ==================== 資料 / 儲存 ====================
+function rangeDays(startStr, endStr) {
+  const s = parseDateInput(startStr);
+  const e = parseDateInput(endStr || startStr);
+  if (!s || !e) return [];
+  return getKeysInRange(s.m, s.d, e.m, e.d);
+}
+
+// ==================== 資料建立 ====================
 function buildDefaultData() {
   const data = {};
   for (let m = 1; m <= 12; m++) {
@@ -802,33 +1080,129 @@ function buildDefaultData() {
   return data;
 }
 
+function buildStaticInfo() {
+  const info = {};
+  const get = k => info[k] || (info[k] = { brk: null, peaks: [], big: [], jp: null, jpOff: null, jpEvents: [], jpSeasons: [] });
+  SCHOOL_BREAKS.forEach(b => rangeDays(b.start, b.end).forEach(({ m, d }) => { get(keyOf(m, d)).brk = b.name; }));
+  EXAM_PEAKS.forEach(p => rangeDays(p.start, p.end).forEach(({ m, d, wd }) => {
+    const k = keyOf(m, d);
+    if (wd === 0 || wd === 6 || isTwOff(k)) return;
+    get(k).peaks.push(p.name);
+  }));
+  BIG_EXAMS.forEach(b => rangeDays(b.start, b.end).forEach(({ m, d }) => { get(keyOf(m, d)).big.push(b.name); }));
+  JP_DAYS.forEach(j => rangeDays(j.s, j.e || j.s).forEach(({ m, d }) => {
+    const x = get(keyOf(m, d));
+    if (j.t === "holiday") x.jp = j.n;
+    else if (j.t === "off") x.jpOff = j.n;
+    else if (j.t === "event") x.jpEvents.push(j.n);
+    else x.jpSeasons.push(j.n);
+  }));
+  return info;
+}
+
+function computeSchoolMap() {
+  const map = {};
+  state.schools.forEach(s => {
+    if (s.enabled === false) return;
+    (s.exams || []).forEach(ex => rangeDays(ex.start, ex.end).forEach(({ m, d, wd }) => {
+      const k = keyOf(m, d);
+      if (wd === 0 || wd === 6 || isTwOff(k)) return;
+      (map[k] = map[k] || []).push({ school: s.name || "未命名學校", label: ex.label || "考試", sub: ex.sub || "" });
+    }));
+  });
+  return map;
+}
+
+function refreshSchoolMap() { schoolMap = computeSchoolMap(); }
+
+function dayInfo(m, d) {
+  const k = keyOf(m, d);
+  const st = STATIC_INFO[k] || { brk: null, peaks: [], big: [], jp: null, jpOff: null, jpEvents: [], jpSeasons: [] };
+  return {
+    jpOff: st.jpOff,
+    jpEvents: st.jpEvents,
+    jpSeasons: st.jpSeasons,
+    jpRest: st.jp || st.jpOff,
+    m, d, key: k,
+    wd: weekdayOf(m, d),
+    off: isTwOff(k),
+    twLabel: DEFAULT_DATA[k] ? DEFAULT_DATA[k].label : "",
+    brk: st.brk,
+    peaks: st.peaks,
+    big: st.big,
+    jp: st.jp,
+    exams: schoolMap[k] || []
+  };
+}
+
+function infoLines(info) {
+  const lines = [];
+  if (info.off) lines.push(`🇹🇼 台灣放假${info.twLabel ? "：" + info.twLabel : ""}`);
+  if (info.brk) lines.push(`🎒 國中小${info.brk}`);
+  info.exams.forEach(e => lines.push(`✏️ ${e.school} ${e.label}${e.sub ? "（" + e.sub + "）" : ""}`));
+  if (info.peaks.length) lines.push(`📝 ${info.peaks.join("、")}（估計，各校不同）`);
+  if (info.big.length) lines.push(`🎓 ${info.big.join("、")}`);
+  if (info.jp) lines.push(`🎌 日本國定假日：${info.jp}（日本放假，人多、房價高）`);
+  if (info.jpOff) lines.push(`🗾 日本休假期間：${info.jpOff}（人多、房價高）`);
+  if (info.jpEvents.length) lines.push(`🎎 日本節慶：${info.jpEvents.join("、")}`);
+  if (info.jpSeasons.length) lines.push(`🌸 ${info.jpSeasons.join("、")}`);
+  return lines;
+}
+
+// ==================== 儲存 ====================
+function stripSchoolCells(data) {
+  const out = {};
+  Object.entries(data || {}).forEach(([k, v]) => {
+    if (v && v.src === "school") {
+      if (DEFAULT_DATA[k]) out[k] = clone(DEFAULT_DATA[k]);
+    } else if (v) {
+      out[k] = v;
+    }
+  });
+  return out;
+}
+
+function defaultLayers() { return { breaks: true, risk: true, school: true, jp: true }; }
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.profiles && s.profiles[s.current]) { state = s; return; }
-    }
-  } catch (e) {}
-
-  let migrated = null;
-  try {
-    const old = localStorage.getItem(OLD_KEY);
-    if (old) migrated = JSON.parse(old);
-  } catch (e) {}
-
-  const id = newId();
-  state = {
-    version: 3,
-    current: id,
-    profiles: {
-      [id]: {
-        name: migrated ? "我的行事曆（舊資料）" : "我的行事曆",
-        data: migrated || buildDefaultData(),
-        exams: []
+      if (s && s.data && Array.isArray(s.schools)) {
+        state = s;
+        state.layers = Object.assign(defaultLayers(), s.layers || {});
+        return;
       }
     }
-  };
+  } catch (e) {}
+
+  state = { version: 4, data: null, schools: [], layers: defaultLayers() };
+
+  // 搬移上一版（v3）資料
+  try {
+    const v3 = localStorage.getItem(V3_KEY);
+    if (v3) {
+      const s = JSON.parse(v3);
+      if (s && s.profiles) {
+        const p = s.profiles[s.current] || Object.values(s.profiles)[0];
+        if (p && p.data) state.data = stripSchoolCells(p.data);
+        Object.values(s.profiles).forEach(pp => {
+          if (pp.exams && pp.exams.length) state.schools.push({ id: newId(), name: pp.name, enabled: true, exams: pp.exams });
+        });
+      }
+    }
+  } catch (e) {}
+
+  // 搬移更舊版（v2）資料
+  if (!state.data) {
+    try {
+      const v2 = localStorage.getItem(V2_KEY);
+      if (v2) state.data = JSON.parse(v2);
+    } catch (e) {}
+  }
+
+  if (!state.data) state.data = buildDefaultData();
   saveState();
 }
 
@@ -836,96 +1210,62 @@ function saveState() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   } catch (e) {
-    showToast("⚠️ 無法儲存（可能是無痕模式或空間不足），請記得匯出備份");
+    showToast("⚠️ 無法儲存（可能是無痕模式），請記得匯出備份");
   }
 }
 
 function pushUndo() {
-  undoStack.push(JSON.stringify(getData()));
+  undoStack.push(JSON.stringify(state.data));
   if (undoStack.length > 40) undoStack.shift();
 }
 
 function undo() {
   if (!undoStack.length) { showToast("沒有可以復原的動作囉"); return; }
-  cur().data = JSON.parse(undoStack.pop());
+  state.data = JSON.parse(undoStack.pop());
   saveState();
   renderCalendar();
   showToast("↩️ 已復原上一步");
 }
 
-// ==================== 多份行事曆（多個小孩 / 學校） ====================
-function renderProfileSelect() {
-  const sel = document.getElementById("profileSelect");
-  sel.innerHTML = "";
-  Object.entries(state.profiles).forEach(([id, p]) => {
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = p.name;
-    sel.appendChild(opt);
-  });
-  sel.value = state.current;
-  document.getElementById("printProfileName").textContent = "・" + cur().name;
-}
-
-function switchProfile(id) {
-  if (!state.profiles[id]) return;
-  state.current = id;
-  undoStack = [];
-  saveState();
-  renderProfileSelect();
-  renderCalendar();
-  showToast(`已切換到「${cur().name}」`);
-}
-
-function addProfile(name, data, exams) {
-  const finalName = name || prompt("新行事曆的名字（例如：老大-光明國小）", "新的行事曆");
-  if (!finalName) return null;
-  const id = newId();
-  state.profiles[id] = {
-    name: finalName.trim().slice(0, 20),
-    data: data || buildDefaultData(),
-    exams: exams || []
-  };
-  switchProfile(id);
-  return id;
-}
-
-function renameProfile() {
-  const name = prompt("新的名字：", cur().name);
-  if (!name) return;
-  cur().name = name.trim().slice(0, 20);
-  saveState();
-  renderProfileSelect();
-}
-
-function deleteProfile() {
-  const ids = Object.keys(state.profiles);
-  if (ids.length <= 1) { showToast("至少要保留一份行事曆喔"); return; }
-  if (!confirm(`確定刪除「${cur().name}」？刪除後無法復原。`)) return;
-  delete state.profiles[state.current];
-  switchProfile(Object.keys(state.profiles)[0]);
-}
-
 // ==================== 下拉選單 ====================
+function fillMonthSelect(sel) {
+  sel.innerHTML = "";
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = `${m}月`;
+    sel.appendChild(opt);
+  }
+}
+
 function initSelectControls() {
-  ["barStartM", "barEndM", "modStartM", "modEndM"].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = "";
-    for (let m = 1; m <= 12; m++) {
-      const opt = document.createElement("option");
-      opt.value = m;
-      opt.textContent = `${m}月`;
-      sel.appendChild(opt);
-    }
-  });
+  ["barStartM", "barEndM", "modStartM", "modEndM", "plFrom", "plTo"].forEach(id => fillMonthSelect(document.getElementById(id)));
+  document.getElementById("plTo").value = 12;
   ["bar", "mod"].forEach(p => {
     updateDayOptions(`${p}StartM`, `${p}StartD`, false);
     updateDayOptions(`${p}EndM`, `${p}EndD`, false);
   });
-  const today = new Date();
-  if (today.getFullYear() === YEAR) {
-    setRangeSelect("bar", today.getMonth() + 1, today.getDate(), today.getMonth() + 1, today.getDate());
+  const lenSel = document.getElementById("plLen");
+  for (let n = 3; n <= 10; n++) {
+    const opt = document.createElement("option");
+    opt.value = n;
+    opt.textContent = `${n}天${n - 1}夜`;
+    lenSel.appendChild(opt);
   }
+  lenSel.value = 5;
+  ["chkStart", "chkEnd"].forEach(id => {
+    const el = document.getElementById(id);
+    el.min = `${YEAR}-01-01`;
+    el.max = `${YEAR}-12-31`;
+  });
+  document.getElementById("chkStart").addEventListener("change", e => {
+    const s = parseDateInput(e.target.value);
+    if (!s) return;
+    const end = new Date(YEAR, s.m - 1, s.d + (+lenSel.value) - 1);
+    if (end.getFullYear() !== YEAR) return;
+    const endEl = document.getElementById("chkEnd");
+    if (!endEl.value || endEl.value < e.target.value) endEl.value = iso(end.getMonth() + 1, end.getDate());
+  });
 }
 
 function setRangeSelect(prefix, sm, sd, em, ed) {
@@ -954,10 +1294,7 @@ function updateDayOptions(monthSelId, daySelId, syncEnd) {
 }
 
 function syncEndIfNeeded(prefix) {
-  const sm = parseInt(document.getElementById(`${prefix}StartM`).value, 10);
-  const sd = parseInt(document.getElementById(`${prefix}StartD`).value, 10);
-  const em = parseInt(document.getElementById(`${prefix}EndM`).value, 10);
-  const ed = parseInt(document.getElementById(`${prefix}EndD`).value, 10);
+  const [sm, sd, em, ed] = readRange(prefix);
   if (sm * 100 + sd > em * 100 + ed) {
     document.getElementById(`${prefix}EndM`).value = sm;
     updateDayOptions(`${prefix}EndM`, `${prefix}EndD`, false);
@@ -972,7 +1309,7 @@ function readRange(prefix) {
 // ==================== 區間套用 ====================
 function applyRangeData(sm, sd, em, ed, color, labelText, subText, clearMode, keepExistingText) {
   pushUndo();
-  const data = getData();
+  const data = state.data;
   const days = getKeysInRange(sm, sd, em, ed);
   days.forEach(({ m, d }) => {
     const key = keyOf(m, d);
@@ -982,11 +1319,8 @@ function applyRangeData(sm, sd, em, ed, color, labelText, subText, clearMode, ke
       const existing = data[key] || { color: "none", label: "", sub: "" };
       const finalLabel = keepExistingText ? existing.label : labelText;
       const finalSub   = keepExistingText ? existing.sub   : subText;
-      if (color === "none" && !finalLabel && !finalSub) {
-        delete data[key];
-      } else {
-        data[key] = { color, label: finalLabel, sub: finalSub }; // 手動修改後就不再是「學校考試自動產生」
-      }
+      if (color === "none" && !finalLabel && !finalSub) delete data[key];
+      else data[key] = { color, label: finalLabel, sub: finalSub };
     }
     refreshCell(m, d);
   });
@@ -1000,7 +1334,6 @@ function applyTopBarRange() {
   const subVal   = document.getElementById("barSubInput").value.trim();
   const colorVal = document.getElementById("barColorSelect").value;
   const isMultiDay = (sm !== em || sd !== ed);
-  // 多日區間又沒填文字 → 只改顏色，保留原本的節日名稱（例如連假中的除夕、初一）
   const keepText = isMultiDay && labelVal === "" && subVal === "";
   applyRangeData(sm, sd, em, ed, colorVal, labelVal, subVal, false, keepText);
 }
@@ -1063,13 +1396,32 @@ function refreshCell(m, d) {
 }
 
 function fillCell(td, m, d) {
-  const data = getData()[keyOf(m, d)];
-  const color = data && data.color ? data.color : "none";
-  const label = data && data.label ? data.label : "";
-  const sub   = data && data.sub   ? data.sub   : "";
+  const key = keyOf(m, d);
+  const user = state.data[key];
+  const info = dayInfo(m, d);
+  const L = state.layers;
+
+  let color = user && user.color ? user.color : "none";
+  let label = user && user.label ? user.label : "";
+  let sub   = user && user.sub   ? user.sub   : "";
+  const exams = L.school ? info.exams : [];
+  let showExamBadge = false;
+
+  if (exams.length) {
+    if (color === "none" && !label) {
+      color = "exam";
+      label = exams.length > 1 ? `考試×${exams.length}` : exams[0].label;
+      sub = sub || exams.map(e => e.school).join("、");
+    } else {
+      showExamBadge = true;
+    }
+  }
 
   td.className = "";
   if (color !== "none") td.classList.add(`color-${color}`, "has-color");
+  if (L.breaks && info.brk) td.classList.add("in-break");
+  if (L.risk && info.big.length) td.classList.add("in-peak", "in-big");
+  else if (L.risk && info.peaks.length) td.classList.add("in-peak");
   const now = new Date();
   if (now.getFullYear() === YEAR && now.getMonth() + 1 === m && now.getDate() === d) td.classList.add("today");
 
@@ -1091,10 +1443,44 @@ function fillCell(td, m, d) {
     el.textContent = sub;
     td.appendChild(el);
   }
-  td.title = [label, sub].filter(Boolean).join("｜");
+  if (showExamBadge) {
+    const b = document.createElement("span");
+    b.className = "exam-badge";
+    b.textContent = `考${exams.length}`;
+    td.appendChild(b);
+  }
+  if (L.jp && info.jpRest) {
+    const b = document.createElement("span");
+    b.className = "jp-badge";
+    b.textContent = "日";
+    td.appendChild(b);
+  }
+  if (L.jp && (info.jpRest || info.jpEvents.length)) {
+    const j = document.createElement("div");
+    j.className = "jp-line" + (info.jpRest ? "" : " ev");
+    j.textContent = info.jpRest || info.jpEvents[0];
+    td.appendChild(j);
+  }
+
+  const tips = [];
+  if (user && (user.label || user.sub)) tips.push([user.label, user.sub].filter(Boolean).join("｜"));
+  td.title = tips.concat(infoLines(info)).join("\n");
 }
 
-// ==================== 點擊 / 畫筆（滑鼠與手機觸控都支援） ====================
+function toggleLayer(name, on) {
+  state.layers[name] = on;
+  saveState();
+  renderCalendar();
+}
+
+function syncLayerCheckboxes() {
+  document.getElementById("lyBreaks").checked = state.layers.breaks;
+  document.getElementById("lyRisk").checked = state.layers.risk;
+  document.getElementById("lySchool").checked = state.layers.school;
+  document.getElementById("lyJp").checked = state.layers.jp;
+}
+
+// ==================== 點擊 / 畫筆 ====================
 function cellFromEvent(target) {
   const td = target && target.closest ? target.closest("td[data-m]") : null;
   return td ? { td, m: +td.dataset.m, d: +td.dataset.d } : null;
@@ -1103,7 +1489,6 @@ function cellFromEvent(target) {
 function initCalendarEvents() {
   const container = document.getElementById("calendar");
 
-  // 編輯模式用 click（手機上捲動時不會誤開視窗）
   container.addEventListener("click", e => {
     if (currentMode !== "edit") return;
     const c = cellFromEvent(e.target);
@@ -1123,8 +1508,7 @@ function initCalendarEvents() {
 
   document.addEventListener("pointermove", e => {
     if (!isDragging) return;
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const c = cellFromEvent(el);
+    const c = cellFromEvent(document.elementFromPoint(e.clientX, e.clientY));
     if (c) paintCell(c.m, c.d);
   });
 
@@ -1142,12 +1526,11 @@ function paintCell(m, d) {
   const key = keyOf(m, d);
   if (key === lastPaintedKey) return;
   lastPaintedKey = key;
-  const data = getData();
-  const existing = data[key] ? { ...data[key] } : { color: "none", label: "", sub: "" };
+  const existing = state.data[key] ? { ...state.data[key] } : { color: "none", label: "", sub: "" };
   existing.color = currentBrush;
   delete existing.src;
-  if (existing.color === "none" && !existing.label && !existing.sub) delete data[key];
-  else data[key] = existing;
+  if (existing.color === "none" && !existing.label && !existing.sub) delete state.data[key];
+  else state.data[key] = existing;
   refreshCell(m, d);
 }
 
@@ -1161,9 +1544,7 @@ function setMode(mode) {
 function selectBrush(color) {
   currentBrush = color;
   setMode("brush");
-  document.querySelectorAll(".swatch-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.color === color);
-  });
+  document.querySelectorAll(".swatch-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.color === color));
 }
 
 // ==================== 編輯視窗 ====================
@@ -1174,13 +1555,23 @@ function setQuickLabel(text) {
 }
 
 function openModal(m, d) {
-  const data = getData()[keyOf(m, d)] || { color: "none", label: "", sub: "" };
+  const data = state.data[keyOf(m, d)] || { color: "none", label: "", sub: "" };
   setRangeSelect("mod", m, d, m, d);
   document.getElementById("modalLabelInput").value = data.label || "";
   document.getElementById("modalSubInput").value = data.sub || "";
   pickModalColor(data.color || "none");
+
+  const box = document.getElementById("modalDayInfo");
+  box.textContent = "";
+  const lines = [`📅 ${fmt(m, d)}`].concat(infoLines(dayInfo(m, d)));
+  if (lines.length === 1) lines.push("一般上班上課日");
+  lines.forEach(t => {
+    const div = document.createElement("div");
+    div.textContent = t;
+    box.appendChild(div);
+  });
+
   document.getElementById("editModal").classList.add("show");
-  // 手機上不自動跳鍵盤
   if (window.matchMedia("(pointer: fine)").matches) {
     setTimeout(() => document.getElementById("modalLabelInput").focus(), 50);
   }
@@ -1188,9 +1579,7 @@ function openModal(m, d) {
 
 function pickModalColor(color) {
   selectedModalColor = color;
-  document.querySelectorAll(".modal-color-opt").forEach(el => {
-    el.classList.toggle("selected", el.dataset.color === color);
-  });
+  document.querySelectorAll(".modal-color-opt").forEach(el => el.classList.toggle("selected", el.dataset.color === color));
 }
 
 function saveModalRange() {
@@ -1213,13 +1602,56 @@ function closeModal(id) {
   document.getElementById(id).classList.remove("show");
 }
 
-// ==================== 學校考試日期設定 ====================
-function openExamModal() {
+// ==================== 學校考試日期 ====================
+function findSchool(id) { return state.schools.find(s => s.id === id); }
+
+function renderSchoolSelect() {
+  const sel = document.getElementById("schoolSelect");
+  sel.innerHTML = "";
+  state.schools.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = `${s.name || "未命名學校"}${s.enabled === false ? "（隱藏）" : ""}（${(s.exams || []).length}次）`;
+    sel.appendChild(opt);
+  });
+  if (editingSchoolId) sel.value = editingSchoolId;
+}
+
+function setReportUI(on) {
+  reportMode = on;
+  document.getElementById("schoolModalTitle").textContent = on ? "📨 填寫孩子學校的考試日期" : "🏫 學校考試日期";
+  document.getElementById("schoolHintAdmin").style.display = on ? "none" : "";
+  document.getElementById("schoolHintReport").style.display = on ? "" : "none";
+  document.getElementById("schoolBar").style.display = on ? "none" : "";
+  document.getElementById("schoolActionsAdmin").style.display = on ? "none" : "";
+  document.getElementById("schoolActionsReport").style.display = on ? "" : "none";
+}
+
+function openSchoolModal() {
+  setReportUI(false);
+  if (!state.schools.length) {
+    state.schools.push({ id: newId(), name: "", enabled: true, exams: [] });
+  }
+  if (!editingSchoolId || !findSchool(editingSchoolId)) editingSchoolId = state.schools[0].id;
+  renderSchoolSelect();
+  loadSchoolToForm(findSchool(editingSchoolId));
+  document.getElementById("schoolModal").classList.add("show");
+}
+
+function openReportMode() {
+  setReportUI(true);
+  editingSchoolId = null;
+  loadSchoolToForm({ name: "", enabled: true, exams: [] });
+  document.getElementById("schoolModal").classList.add("show");
+}
+
+function loadSchoolToForm(s) {
+  document.getElementById("schoolNameInput").value = s.name || "";
+  document.getElementById("schoolEnabled").checked = s.enabled !== false;
   const box = document.getElementById("examRows");
   box.innerHTML = "";
-  const exams = cur().exams && cur().exams.length ? cur().exams : [{ label: "期中考", start: "", end: "", sub: "" }];
+  const exams = s.exams && s.exams.length ? s.exams : [{ label: "期中考", start: "", end: "", sub: "" }];
   exams.forEach(ex => addExamRow(ex));
-  document.getElementById("examModal").classList.add("show");
 }
 
 function addExamRow(ex) {
@@ -1246,13 +1678,6 @@ function addExamRow(ex) {
   document.getElementById("examRows").appendChild(row);
 }
 
-function loadSampleExams() {
-  const box = document.getElementById("examRows");
-  box.innerHTML = "";
-  sampleExams.forEach(ex => addExamRow(ex));
-  showToast("📋 已載入範例，請改成學校公告的日期再套用");
-}
-
 function readExamRows() {
   return [...document.querySelectorAll("#examRows .exam-row")].map(row => ({
     label: row.querySelector(".ex-label").value.trim() || "考試",
@@ -1262,68 +1687,354 @@ function readExamRows() {
   })).filter(ex => parseDateInput(ex.start) && parseDateInput(ex.end));
 }
 
-function applyExamSettings() {
-  const exams = readExamRows();
-  const skip = document.getElementById("skipHoliday").checked;
-  pushUndo();
-  const data = getData();
-
-  // 1. 先移除上一次「學校考試設定」自動產生的格子（手動改過的不會動）
-  Object.keys(data).forEach(key => {
-    if (data[key] && data[key].src === "school") {
-      if (DEFAULT_DATA[key]) data[key] = clone(DEFAULT_DATA[key]);
-      else delete data[key];
-    }
-  });
-
-  // 2. 重新套用
-  let count = 0;
-  exams.forEach(ex => {
-    const s = parseDateInput(ex.start);
-    const e = parseDateInput(ex.end);
-    getKeysInRange(s.m, s.d, e.m, e.d).forEach(({ m, d, wd }) => {
-      const key = keyOf(m, d);
-      if (skip && (wd === 0 || wd === 6 || (DEFAULT_DATA[key] && DEFAULT_DATA[key].color === "holiday"))) return;
-      data[key] = { color: "exam", label: ex.label, sub: ex.sub, src: "school" };
-      count++;
-    });
-  });
-
-  cur().exams = exams;
-  saveState();
-  renderCalendar();
-  closeModal("examModal");
-  showToast(exams.length ? `🏫 已套用 ${exams.length} 次考試，共 ${count} 天` : "🏫 已清除學校考試日期");
-}
-
-// ==================== 分享連結 / 匯出匯入 ====================
-function toCompact(profile) {
+function readSchoolForm() {
   return {
-    v: 3,
-    y: YEAR,
-    n: profile.name,
-    e: profile.exams || [],
-    d: Object.entries(profile.data).map(([k, v]) => [k, COLORS.indexOf(v.color), v.label || "", v.sub || "", v.src === "school" ? 1 : 0])
+    name: document.getElementById("schoolNameInput").value.trim(),
+    enabled: document.getElementById("schoolEnabled").checked,
+    exams: readExamRows()
   };
 }
 
-function fromCompact(obj) {
-  if (!obj || obj.y !== YEAR || !Array.isArray(obj.d)) throw new Error("格式不符");
-  const data = {};
-  obj.d.forEach(([k, c, label, sub, school]) => {
-    if (!/^\d{1,2}-\d{1,2}$/.test(k)) return;
-    const item = { color: COLORS[c] || "none", label: String(label || "").slice(0, 10), sub: String(sub || "").slice(0, 14) };
-    if (school) item.src = "school";
-    data[k] = item;
-  });
-  return { name: String(obj.n || "分享的行事曆").slice(0, 20), data, exams: Array.isArray(obj.e) ? obj.e : [] };
+function commitSchoolForm() {
+  if (reportMode || !editingSchoolId) return;
+  const s = findSchool(editingSchoolId);
+  if (!s) return;
+  Object.assign(s, readSchoolForm());
+  if (!s.name) s.name = "未命名學校";
+  saveState();
 }
 
+function switchSchool(id) {
+  commitSchoolForm();
+  editingSchoolId = id;
+  renderSchoolSelect();
+  loadSchoolToForm(findSchool(id));
+}
+
+function addSchool() {
+  commitSchoolForm();
+  const s = { id: newId(), name: "", enabled: true, exams: [] };
+  state.schools.push(s);
+  editingSchoolId = s.id;
+  renderSchoolSelect();
+  loadSchoolToForm(s);
+  document.getElementById("schoolNameInput").focus();
+}
+
+function deleteSchool() {
+  const s = findSchool(editingSchoolId);
+  if (!s) return;
+  if (!confirm(`確定刪除「${s.name || "未命名學校"}」的考試日期？`)) return;
+  state.schools = state.schools.filter(x => x.id !== s.id);
+  if (!state.schools.length) state.schools.push({ id: newId(), name: "", enabled: true, exams: [] });
+  editingSchoolId = state.schools[0].id;
+  saveState();
+  refreshSchoolMap();
+  renderCalendar();
+  renderSchoolSelect();
+  loadSchoolToForm(findSchool(editingSchoolId));
+}
+
+function loadSampleExams() {
+  document.getElementById("examRows").innerHTML = "";
+  sampleExams.forEach(ex => addExamRow(ex));
+  showToast("📋 已載入範例，請改成學校公告的日期再儲存");
+}
+
+function saveSchoolAndApply() {
+  commitSchoolForm();
+  const s = findSchool(editingSchoolId);
+  refreshSchoolMap();
+  renderCalendar();
+  renderSchoolSelect();
+  closeModal("schoolModal");
+  showToast(`🏫 已儲存「${s.name}」：${s.exams.length} 次考試`);
+}
+
+async function shareSchool() {
+  commitSchoolForm();
+  const s = findSchool(editingSchoolId);
+  if (!s || !s.exams.length) { showToast("這間學校還沒有考試日期"); return; }
+  const code = await encodeShare({ t: "school", y: YEAR, n: s.name, e: s.exams });
+  copyText(`${baseUrl()}#school=${code}`, "🔗 已複製這間學校的分享連結");
+}
+
+async function sendReport() {
+  const f = readSchoolForm();
+  if (!f.name) { showToast("請先填學校名稱"); return; }
+  if (!f.exams.length) { showToast("請至少填一次考試日期（開始日期一定要填）"); return; }
+  const code = await encodeShare({ t: "school", y: YEAR, n: f.name, e: f.exams });
+  copyText(`${baseUrl()}#school=${code}`, "✅ 已複製！請貼到 LINE 傳給團主，謝謝您 🙏");
+}
+
+function copyReportLink() {
+  if (location.protocol === "file:") {
+    showToast("⚠️ 要先放上 GitHub Pages，家長才能打開回報連結");
+    return;
+  }
+  copyText(`${baseUrl()}#report`, "📨 已複製家長回報連結，貼到團員 LINE 群組請家長填寫");
+}
+
+function sanitizeExams(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map(ex => ({
+    label: String(ex.label || "考試").slice(0, 10),
+    start: String(ex.start || ""),
+    end: String(ex.end || ex.start || ""),
+    sub: String(ex.sub || "").slice(0, 14)
+  })).filter(ex => parseDateInput(ex.start) && parseDateInput(ex.end));
+}
+
+async function handleHash() {
+  const h = location.hash;
+  if (h === "#report") {
+    openReportMode();
+    return;
+  }
+  const m = h.match(/^#school=([A-Za-z0-9_-]+)$/);
+  if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  try {
+    const obj = await decodeShare(m[1]);
+    if (!obj || obj.t !== "school" || obj.y !== YEAR) throw new Error("bad");
+    const name = String(obj.n || "未命名學校").slice(0, 16);
+    const exams = sanitizeExams(obj.e);
+    if (!exams.length) throw new Error("empty");
+    const summary = exams.map(ex => `・${ex.label} ${ex.start.slice(5).replace("-", "/")}～${ex.end.slice(5).replace("-", "/")}`).join("\n");
+    const same = state.schools.find(s => s.name === name);
+    if (same) {
+      if (!confirm(`收到「${name}」的考試日期：\n${summary}\n\n清單裡已經有同名學校，要用新的日期取代嗎？`)) return;
+      same.exams = exams;
+      same.enabled = true;
+    } else {
+      if (!confirm(`收到「${name}」的考試日期：\n${summary}\n\n要加入學校清單嗎？`)) return;
+      state.schools = state.schools.filter(s => s.name || (s.exams && s.exams.length));
+      state.schools.push({ id: newId(), name, enabled: true, exams });
+    }
+    saveState();
+    refreshSchoolMap();
+    renderCalendar();
+    showToast(`✅ 已加入「${name}」的考試日期`);
+  } catch (e) {
+    showToast("⚠️ 連結格式不正確，可能沒有複製完整");
+  }
+}
+
+// ==================== 開團小幫手 ====================
+function openPlanner() {
+  const enabledCount = state.schools.filter(s => s.enabled !== false && s.exams && s.exams.length).length;
+  document.getElementById("plNote").textContent = enabledCount
+    ? `目前已登錄 ${enabledCount} 間學校的考試日期，親子團會避開這些日子。`
+    : "尚未登錄任何學校考試日期，親子團目前只用「考試高峰期（估計）」判斷，建議先收集家長回報。";
+  document.getElementById("plannerModal").classList.add("show");
+}
+
+function analyzeRange(sm, sd, em, ed) {
+  const days = getKeysInRange(sm, sd, em, ed).map(({ m, d }) => dayInfo(m, d));
+  const r = { days, total: days.length, off: 0, adultLeave: 0, studentMiss: 0, breakDays: 0, peakDays: 0, examDays: [], bigDays: [], jpDays: [], jpEventDays: [], jpSchoolDays: 0 };
+  days.forEach(x => {
+    if (x.off) r.off++; else r.adultLeave++;
+    if (x.brk) r.breakDays++;
+    if (!x.off && !x.brk) r.studentMiss++;
+    if (x.exams.length) r.examDays.push(x);
+    if (x.peaks.length && !x.brk) r.peakDays++;
+    if (x.big.length) r.bigDays.push(x);
+    if (x.jpRest) r.jpDays.push(x);
+    if (x.jpEvents.length) r.jpEventDays.push(x);
+    if (x.jpSeasons.some(n => n.includes("學校"))) r.jpSchoolDays++;
+  });
+  return r;
+}
+
+function scoreRange(r, aud, avoidJP) {
+  const jp = avoidJP ? r.jpDays.length + r.jpSchoolDays * 0.3 : 0;
+  if (aud === "family") return r.adultLeave * 2 + r.studentMiss * 3 + r.examDays.length * 15 + r.peakDays * 2 + r.bigDays.length + jp * 1.5;
+  if (aud === "worker") return r.adultLeave * 3 + jp * 1.5;
+  return r.off * 1 + jp * 2; // 長輩：避開台灣假日人潮與旺季價
+}
+
+function summaryText(r, aud) {
+  const parts = [];
+  if (aud !== "senior") parts.push(r.adultLeave ? `上班族請假 ${r.adultLeave} 天` : "上班族免請假");
+  if (aud === "family") {
+    parts.push(r.studentMiss ? `孩子請課 ${r.studentMiss} 天` : "孩子免請假");
+    if (r.examDays.length) parts.push(`⚠️ 撞考試 ${r.examDays.length} 天`);
+    else if (r.peakDays) parts.push(`考試高峰 ${r.peakDays} 天`);
+    if (r.breakDays) parts.push("寒暑假中");
+  }
+  if (aud === "senior") parts.push(r.off ? `遇台灣假日 ${r.off} 天` : "全是平日（人少價低）");
+  if (r.jpDays.length) parts.push(`日本假日 ${r.jpDays.length} 天`);
+  if (r.jpSchoolDays) parts.push("日本學生放假中");
+  if (r.jpEventDays.length) parts.push(`🎎 ${[...new Set(r.jpEventDays.flatMap(x => x.jpEvents))].join("、")}`);
+  return parts.join("・");
+}
+
+function findDates() {
+  const len = +document.getElementById("plLen").value;
+  const aud = document.getElementById("plAud").value;
+  const avoidJP = document.getElementById("plAvoidJP").checked;
+  let fromM = +document.getElementById("plFrom").value;
+  let toM = +document.getElementById("plTo").value;
+  if (fromM > toM) { const t = fromM; fromM = toM; toM = t; }
+
+  const cands = [];
+  const lastStart = new Date(YEAR, toM, 0);
+  for (let c = new Date(YEAR, fromM - 1, 1); c <= lastStart; c.setDate(c.getDate() + 1)) {
+    const e = new Date(c);
+    e.setDate(e.getDate() + len - 1);
+    if (e.getFullYear() !== YEAR) break;
+    const r = analyzeRange(c.getMonth() + 1, c.getDate(), e.getMonth() + 1, e.getDate());
+    cands.push({ s: new Date(c), e, r, score: scoreRange(r, aud, avoidJP) });
+  }
+  cands.sort((a, b) => a.score - b.score || a.s - b.s);
+
+  const picked = [];
+  for (const c of cands) {
+    if (picked.length >= 10) break;
+    if (picked.some(p => c.s <= p.e && c.e >= p.s)) continue;
+    picked.push(c);
+  }
+
+  const list = document.getElementById("plResults");
+  list.innerHTML = "";
+  if (!picked.length) {
+    const li = document.createElement("li");
+    li.textContent = "這個範圍找不到日子，請放寬月份。";
+    list.appendChild(li);
+    return;
+  }
+  picked.forEach((c, i) => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.className = "result-item";
+    const top = document.createElement("span");
+    top.className = "result-date";
+    const rank = document.createElement("span");
+    rank.className = "result-rank";
+    rank.textContent = `第${i + 1}名`;
+    top.appendChild(rank);
+    top.appendChild(document.createTextNode(`${fmtDate(c.s)} ～ ${fmtDate(c.e)}`));
+    const sum = document.createElement("span");
+    sum.className = "result-sum";
+    sum.textContent = summaryText(c.r, aud);
+    btn.appendChild(top);
+    btn.appendChild(sum);
+    btn.addEventListener("click", () => {
+      document.getElementById("chkStart").value = iso(c.s.getMonth() + 1, c.s.getDate());
+      document.getElementById("chkEnd").value = iso(c.e.getMonth() + 1, c.e.getDate());
+      checkRange();
+      document.getElementById("chkResult").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+function checkRange() {
+  const s = parseDateInput(document.getElementById("chkStart").value);
+  const e = parseDateInput(document.getElementById("chkEnd").value);
+  const box = document.getElementById("chkResult");
+  box.innerHTML = "";
+  if (!s || !e) { showToast(`請選 ${YEAR} 年的出發與回程日期`); return; }
+
+  const r = analyzeRange(s.m, s.d, e.m, e.d);
+  const first = r.days[0];
+  const last = r.days[r.days.length - 1];
+  const enabledCount = state.schools.filter(x => x.enabled !== false && x.exams && x.exams.length).length;
+
+  const card = document.createElement("div");
+  card.className = "check-card";
+
+  let vText, vCls;
+  if (r.examDays.length) { vText = "🔴 親子團不建議：撞到已登錄的學校考試"; vCls = "bad"; }
+  else if (r.studentMiss === 0) { vText = "🟢 親子團很適合：孩子不用請假"; vCls = "good"; }
+  else if (r.peakDays > 0) { vText = `🟡 孩子要請假 ${r.studentMiss} 天，而且在考試高峰期，建議先問團員`; vCls = "mid"; }
+  else if (r.studentMiss <= 2) { vText = `🟡 孩子要請假 ${r.studentMiss} 天，多數家長可接受`; vCls = "mid"; }
+  else { vText = `🟡 孩子要請假 ${r.studentMiss} 天，比較適合上班族或長輩團`; vCls = "mid"; }
+
+  const v = document.createElement("div");
+  v.className = `verdict ${vCls}`;
+  v.textContent = vText;
+  card.appendChild(v);
+
+  const add = (text, cls) => {
+    const div = document.createElement("div");
+    div.className = "check-line" + (cls ? " " + cls : "");
+    div.textContent = text;
+    card.appendChild(div);
+  };
+
+  add(`📅 ${fmt(first.m, first.d)} ～ ${fmt(last.m, last.d)}，共 ${r.total} 天 ${r.total - 1} 晚`);
+  add(`🇹🇼 台灣放假 ${r.off} 天，上班族要請假 ${r.adultLeave} 天`);
+  add(`🎒 孩子要請課 ${r.studentMiss} 天${r.breakDays ? `（其中 ${r.breakDays} 天在寒暑假）` : ""}`);
+
+  if (r.examDays.length) {
+    add("✏️ 撞到學校考試：", "bad");
+    r.examDays.forEach(x => add(`　${fmt(x.m, x.d)}：${x.exams.map(ex => ex.school + " " + ex.label).join("、")}`, "bad"));
+  } else if (enabledCount) {
+    add(`✏️ 沒有撞到已登錄的 ${enabledCount} 間學校考試`);
+  } else {
+    add("✏️ 還沒有登錄任何學校考試日期", "warn");
+  }
+  if (r.peakDays) add(`📝 有 ${r.peakDays} 天落在多數國小的考試高峰期（估計），未登錄的學校可能會考試`, "warn");
+  if (r.bigDays.length) add(`🎓 遇到 ${[...new Set(r.bigDays.flatMap(x => x.big))].join("、")}，家裡有高中考生的團員不方便`, "warn");
+  if (r.jpDays.length) {
+    add(`🎌 遇到日本假日：${r.jpDays.map(x => `${x.m}/${x.d} ${x.jpRest}`).join("、")}`, "warn");
+    add("　→ 景點人多、飯店與交通可能較貴，訂房要提早", "warn");
+  }
+  if (r.jpSchoolDays) add(`🎒 有 ${r.jpSchoolDays} 天是日本學校假期（約），樂園與熱門景點人會比較多`, "warn");
+  if (r.jpEventDays.length) {
+    add(`🎎 可以安排的日本節慶：${r.jpEventDays.map(x => `${x.m}/${x.d} ${x.jpEvents.join("、")}`).join("、")}`);
+  }
+  const seasons = [...new Set(r.days.flatMap(x => x.jpSeasons).filter(n => !n.includes("學校")))];
+  if (seasons.length) add(`🌸 正值${seasons.join("、")}，可當行程賣點`);
+
+  const actions = document.createElement("div");
+  actions.className = "check-actions";
+  const b1 = document.createElement("button");
+  b1.className = "btn";
+  b1.style.background = "#fff4e0";
+  b1.textContent = "⭐ 標記為候選開團";
+  b1.addEventListener("click", () => markTour("event", s, e));
+  const b2 = document.createElement("button");
+  b2.className = "btn btn-tour";
+  b2.textContent = "✈️ 標記為已開團";
+  b2.addEventListener("click", () => markTour("trip", s, e));
+  actions.appendChild(b1);
+  actions.appendChild(b2);
+  card.appendChild(actions);
+
+  box.appendChild(card);
+}
+
+function markTour(color, s, e) {
+  const name = prompt(color === "trip" ? "團名（例如：北海道5日）" : "候選團名稱", color === "trip" ? "日本團" : "候選團");
+  if (name === null) return;
+  const title = (name.trim() || (color === "trip" ? "日本團" : "候選團")).slice(0, 10);
+  pushUndo();
+  const days = getKeysInRange(s.m, s.d, e.m, e.d);
+  days.forEach(({ m, d }, i) => {
+    const key = keyOf(m, d);
+    const ex = state.data[key] || { color: "none", label: "", sub: "" };
+    let label, sub;
+    if (i === 0) { label = title; sub = "出發"; }
+    else if (i === days.length - 1) { label = ex.label || title; sub = "回程"; }
+    else { label = ex.label || title; sub = ex.sub || ""; }
+    state.data[key] = { color, label, sub };
+  });
+  saveState();
+  renderCalendar();
+  closeModal("plannerModal");
+  showToast(`✅ 已把 ${s.m}/${s.d}～${e.m}/${e.d} 標記為「${title}」`);
+}
+
+// ==================== 分享編碼 / 備份 ====================
 function bytesToB64url(bytes) {
   let s = "";
   for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
+
 function b64urlToBytes(str) {
   const b64 = str.replace(/-/g, "+").replace(/_/g, "/");
   const bin = atob(b64 + "===".slice((b64.length + 3) % 4));
@@ -1334,61 +2045,35 @@ async function encodeShare(obj) {
   const bytes = new TextEncoder().encode(JSON.stringify(obj));
   if ("CompressionStream" in window) {
     const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip"));
-    const zipped = new Uint8Array(await new Response(stream).arrayBuffer());
-    return "z" + bytesToB64url(zipped);
+    return "z" + bytesToB64url(new Uint8Array(await new Response(stream).arrayBuffer()));
   }
   return "p" + bytesToB64url(bytes);
 }
 
 async function decodeShare(code) {
-  const kind = code[0];
   let bytes = b64urlToBytes(code.slice(1));
-  if (kind === "z") {
+  if (code[0] === "z") {
     const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
     bytes = new Uint8Array(await new Response(stream).arrayBuffer());
   }
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
-async function copyShareLink() {
-  if (location.protocol === "file:") {
-    showToast("⚠️ 分享連結要放上 GitHub Pages 等網址才能給別人開，目前可先用「匯出備份」");
-  }
+async function copyText(text, okMsg) {
   try {
-    const code = await encodeShare(toCompact(cur()));
-    const url = `${location.origin}${location.pathname}#share=${code}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast("🔗 已複製分享連結，可以貼到 LINE 給同班家長！");
-    } catch (e) {
-      prompt("請手動複製這個連結：", url);
-    }
+    await navigator.clipboard.writeText(text);
+    showToast(okMsg);
   } catch (e) {
-    showToast("⚠️ 產生分享連結失敗");
-  }
-}
-
-async function handleShareHash() {
-  const m = location.hash.match(/^#share=([A-Za-z0-9_-]+)$/);
-  if (!m) return;
-  history.replaceState(null, "", location.pathname + location.search);
-  try {
-    const p = fromCompact(await decodeShare(m[1]));
-    if (confirm(`收到分享的行事曆「${p.name}」\n要匯入成一份新的行事曆嗎？（不會覆蓋你原本的）`)) {
-      addProfile(p.name, p.data, p.exams);
-      showToast(`✅ 已匯入「${p.name}」`);
-    }
-  } catch (e) {
-    showToast("⚠️ 分享連結格式不正確，可能沒有複製完整");
+    prompt("請長按或全選複製這個連結：", text);
   }
 }
 
 function exportJSON() {
-  const payload = { app: "cute-calendar", ...toCompact(cur()) };
+  const payload = { app: "tour-calendar", v: 4, y: YEAR, data: state.data, schools: state.schools };
   const blob = new Blob([JSON.stringify(payload, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `行事曆${YEAR}-${cur().name}.json`;
+  a.download = `開團行事曆${YEAR}-備份.json`;
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
@@ -1402,11 +2087,20 @@ function importJSON(input) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const p = fromCompact(JSON.parse(reader.result));
-      addProfile(p.name, p.data, p.exams);
-      showToast(`✅ 已匯入「${p.name}」`);
+      const obj = JSON.parse(reader.result);
+      if (!obj || obj.app !== "tour-calendar" || obj.y !== YEAR || !obj.data) throw new Error("bad");
+      if (!confirm("匯入會取代目前的行事曆和學校清單，確定嗎？")) return;
+      pushUndo();
+      state.data = obj.data;
+      state.schools = Array.isArray(obj.schools)
+        ? obj.schools.map(s => ({ id: newId(), name: String(s.name || "").slice(0, 16), enabled: s.enabled !== false, exams: sanitizeExams(s.exams) }))
+        : [];
+      saveState();
+      refreshSchoolMap();
+      renderCalendar();
+      showToast("✅ 已匯入備份");
     } catch (e) {
-      showToast("⚠️ 這個檔案不是本行事曆的備份檔");
+      showToast("⚠️ 這個檔案不是開團行事曆的備份檔");
     }
   };
   reader.readAsText(file);
@@ -1414,10 +2108,9 @@ function importJSON(input) {
 
 // ==================== 其他 ====================
 function resetCalendar() {
-  if (confirm(`確定要把「${cur().name}」恢復成預設的 116 年行事曆嗎？\n（自訂顏色、加註、學校考試都會清除，可按「復原」救回）`)) {
+  if (confirm("確定要把行事曆的顏色和加註恢復成預設嗎？\n（學校考試清單會保留，可按「復原」救回）")) {
     pushUndo();
-    cur().data = buildDefaultData();
-    cur().exams = [];
+    state.data = buildDefaultData();
     saveState();
     renderCalendar();
     showToast("🔄 已恢復預設行事曆！");
@@ -1430,25 +2123,24 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
 document.addEventListener("keydown", e => {
   const editOpen = document.getElementById("editModal").classList.contains("show");
-  const examOpen = document.getElementById("examModal").classList.contains("show");
+  const anyOpen = document.querySelector(".modal-overlay.show");
 
   if (e.key === "Escape") {
-    closeModal("editModal");
-    closeModal("examModal");
+    document.querySelectorAll(".modal-overlay.show").forEach(o => o.classList.remove("show"));
     return;
   }
-  // 注音/倉頡選字時按 Enter 不要誤存
+  // 注音選字時按 Enter 不要誤存
   if (editOpen && e.key === "Enter" && !e.isComposing && e.keyCode !== 229) {
     e.preventDefault();
     saveModalRange();
     return;
   }
-  if (!editOpen && !examOpen && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+  if (!anyOpen && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
     const tag = (document.activeElement && document.activeElement.tagName) || "";
     if (tag !== "INPUT" && tag !== "TEXTAREA") {
       e.preventDefault();
@@ -1463,13 +2155,16 @@ document.querySelectorAll(".modal-overlay").forEach(overlay => {
   });
 });
 
+window.addEventListener("hashchange", handleHash);
+
 // ==================== 啟動 ====================
 loadState();
-renderProfileSelect();
+refreshSchoolMap();
+syncLayerCheckboxes();
 initSelectControls();
 initCalendarEvents();
 renderCalendar();
-handleShareHash();
+handleHash();
 </script>
 
 </body>
